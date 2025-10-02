@@ -1,6 +1,16 @@
 import { useTenantStore } from '@/stores/tenant';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001';
+const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
+
+function resolveBaseUrl() {
+  if (/^https?:\/\//i.test(RAW_BASE_URL)) {
+    return RAW_BASE_URL;
+  }
+
+  const normalized = RAW_BASE_URL.startsWith('/') ? RAW_BASE_URL : `/${RAW_BASE_URL}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+  return `${origin}${normalized}`;
+}
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -22,7 +32,9 @@ export async function apiFetch<TResponse, TBody = unknown>(
     ...(options.headers ?? {})
   };
 
-  const url = new URL(path, API_BASE_URL);
+  const baseUrl = resolveBaseUrl().replace(/\/$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const url = new URL(`${baseUrl}${normalizedPath}`);
   if (tenantStore?.activeTenant) {
     url.searchParams.set('brandRef', tenantStore.activeTenant.brandRef);
     if (tenantStore.activeTenant.structure) {
@@ -39,8 +51,19 @@ export async function apiFetch<TResponse, TBody = unknown>(
   });
 
   if (!response.ok) {
-    const errorPayload = await safeParseJson(response);
-    const error = new Error(errorPayload?.message ?? 'Request failed');
+    let errorPayload: unknown = null;
+    try {
+      errorPayload = await safeParseJson(response);
+    } catch (parseError) {
+      errorPayload = { message: (parseError as Error).message };
+    }
+
+    const message =
+      typeof errorPayload === 'object' && errorPayload !== null && 'message' in errorPayload
+        ? (errorPayload as { message?: string }).message ?? 'Request failed'
+        : 'Request failed';
+
+    const error = new Error(message);
     (error as Error & { status?: number; payload?: unknown }).status = response.status;
     (error as Error & { status?: number; payload?: unknown }).payload = errorPayload;
     throw error;
@@ -50,12 +73,13 @@ export async function apiFetch<TResponse, TBody = unknown>(
 }
 
 async function safeParseJson(response: Response) {
+  const contentType = response.headers.get('content-type') ?? '';
   const text = await response.text();
   if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    console.error('Failed to parse JSON response', error);
-    return null;
+
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Unexpected response content-type: ${contentType}`);
   }
+
+  return JSON.parse(text);
 }

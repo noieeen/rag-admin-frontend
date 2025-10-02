@@ -18,7 +18,7 @@ pnpm install
 pnpm dev
 ```
 
-Create a `.env` file based on `.env.example` to configure the API base URL.
+Create a `.env` file based on `.env.example` to configure the API base URL. The default `/api` path is proxied to `http://localhost:3001` during development to avoid CORS issues.
 
 The frontend expects the backend API (Nest `nest-rag-ai`) to be running locally and serving the endpoints described in `/_referenceAPIs/api-doc.json`.
 

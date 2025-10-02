@@ -76,11 +76,11 @@ export async function createBusinessMetric(payload: CreateMetricRequest) {
 }
 
 export async function listQueryTemplates() {
-  return apiFetch<QueryTemplateMetadata[]>(`/metadata/templates`);
+  return apiFetch<QueryTemplateMetadata[]>(`/metadata/query-templates`);
 }
 
 export async function createQueryTemplate(payload: CreateTemplateRequest) {
-  return apiFetch<QueryTemplateMetadata>(`/metadata/templates`, {
+  return apiFetch<QueryTemplateMetadata>(`/metadata/query-templates`, {
     method: 'POST',
     body: payload
   });

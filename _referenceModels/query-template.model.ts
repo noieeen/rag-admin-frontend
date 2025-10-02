@@ -80,8 +80,8 @@ export interface AccessControl {
 
 // ## Embedding Field Rule ##
 // embeddingSource =
-//     natural_language_question.en + " " +
-//     natural_language_question.th + " " +
+//     natural_language_question_en + " " +
+//     natural_language_question_th + " " +
 //     tags.join(" ") + " " +
 //     primary_use_case + " " +
 //     result_schema.map(col => col.description.en).join(" ") + " " +

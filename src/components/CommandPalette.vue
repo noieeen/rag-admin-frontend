@@ -104,7 +104,7 @@ const results = computed(() => {
     })),
     ...(templateQuery.data.value ?? []).map((template) => ({
       id: template.query_template_id,
-      title: template.natural_language_question.en,
+      title: template.natural_language_question_en,
       description: template.sql_statement,
       category: 'Template',
       to: '/templates'

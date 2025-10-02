@@ -19,7 +19,7 @@
     <div v-else class="grid gap-4 lg:grid-cols-2">
       <Card v-for="template in templates" :key="template.query_template_id">
         <CardHeader>
-          <CardTitle>{{ template.natural_language_question.en }}</CardTitle>
+          <CardTitle>{{ template.natural_language_question_en }}</CardTitle>
           <CardDescription>{{ template.tags?.slice(0, 3).join(', ') ?? 'No tags' }}</CardDescription>
         </CardHeader>
         <CardContent>

@@ -48,6 +48,12 @@ const routes: RouteRecordRaw[] = [
     name: 'metrics',
     component: () => import('@/views/metrics/BusinessMetricsView.vue'),
     meta: { title: 'Business Metrics' }
+  },
+  {
+    path: '/ai-control',
+    name: 'ai-control',
+    component: () => import('@/views/ai/AiControlView.vue'),
+    meta: { title: 'AI Control' }
   }
 ];
 

@@ -12,16 +12,25 @@
       </div>
     </header>
 
-    <div class="grid gap-4 lg:grid-cols-2">
-      <Card v-for="n in 4" :key="n">
+    <div v-if="query.isLoading.value" class="rounded-lg border border-border p-6 text-center text-muted-foreground">
+      Loading templates...
+    </div>
+
+    <div v-else class="grid gap-4 lg:grid-cols-2">
+      <Card v-for="template in templates" :key="template.query_template_id">
         <CardHeader>
-          <CardTitle>What is today sales?</CardTitle>
-          <CardDescription>Updated 5 minutes ago</CardDescription>
+          <CardTitle>{{ template.natural_language_question.en }}</CardTitle>
+          <CardDescription>{{ template.tags?.slice(0, 3).join(', ') ?? 'No tags' }}</CardDescription>
         </CardHeader>
         <CardContent>
           <p class="text-sm text-muted-foreground">
-            SELECT COALESCE(SUM(Total), 0) AS Today_Sales FROM [dbo].[BP_Order]...
+            {{ template.sql_statement }}
           </p>
+        </CardContent>
+      </Card>
+      <Card v-if="templates.length === 0">
+        <CardContent class="flex items-center justify-center py-10 text-sm text-muted-foreground">
+          No templates available.
         </CardContent>
       </Card>
     </div>
@@ -29,9 +38,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import Card from '@/components/ui/Card.vue';
 import CardHeader from '@/components/ui/CardHeader.vue';
 import CardContent from '@/components/ui/CardContent.vue';
 import CardTitle from '@/components/ui/CardTitle.vue';
 import CardDescription from '@/components/ui/CardDescription.vue';
+import { useTemplates } from '@/composables/useMetadataQueries';
+
+const query = useTemplates();
+const templates = computed(() => query.data.value ?? []);
 </script>

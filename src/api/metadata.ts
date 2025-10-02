@@ -104,6 +104,7 @@ export async function getOverviewSummary() {
     columns: number;
     templates: number;
     metrics: number;
+    metadataCoverage?: number;
   }>(`/metadata/overview`);
 }
 

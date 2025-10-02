@@ -11,12 +11,14 @@
         </button>
       </div>
       <div class="flex flex-wrap gap-2 text-sm">
-        <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72" placeholder="Search columns" />
-        <select class="rounded-md border border-border bg-background px-3 py-2">
-          <option>Sensitivity</option>
+        <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72" placeholder="Search columns" v-model="search" />
+        <select class="rounded-md border border-border bg-background px-3 py-2" v-model="selectedSensitivity">
+          <option value="">All sensitivity</option>
+          <option v-for="option in sensitivityOptions" :key="option" :value="option">{{ option }}</option>
         </select>
-        <select class="rounded-md border border-border bg-background px-3 py-2">
-          <option>Language</option>
+        <select class="rounded-md border border-border bg-background px-3 py-2" v-model="selectedLanguage">
+          <option value="">All languages</option>
+          <option v-for="lang in languageOptions" :key="lang" :value="lang">{{ lang }}</option>
         </select>
       </div>
     </header>
@@ -34,12 +36,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-border hover:bg-muted/40" v-for="n in 6" :key="n">
-            <td class="px-4 py-3 font-medium">—</td>
-            <td class="px-4 py-3 text-muted-foreground">—</td>
-            <td class="px-4 py-3 text-muted-foreground">—</td>
-            <td class="px-4 py-3 text-muted-foreground">—</td>
-            <td class="px-4 py-3 text-muted-foreground">—</td>
+          <tr v-if="query.isLoading.value">
+            <td colspan="6" class="px-4 py-6 text-center text-muted-foreground">Loading columns...</td>
+          </tr>
+          <tr v-else-if="filteredColumns.length === 0">
+            <td colspan="6" class="px-4 py-6 text-center text-muted-foreground">No columns found</td>
+          </tr>
+          <tr v-else v-for="column in filteredColumns" :key="column.column_id" class="border-b border-border hover:bg-muted/40">
+            <td class="px-4 py-3 font-medium">{{ column.display_name?.en ?? column.column_name }}</td>
+            <td class="px-4 py-3 text-muted-foreground">{{ column.table_name }}</td>
+            <td class="px-4 py-3 text-muted-foreground">{{ column.data_type }}</td>
+            <td class="px-4 py-3 text-muted-foreground">{{ column.sensitivity ?? '—' }}</td>
+            <td class="px-4 py-3 text-muted-foreground">
+              <span :class="column.embedding ? 'text-emerald-600' : 'text-muted-foreground'">
+                {{ column.embedding ? 'Ready' : 'Pending' }}
+              </span>
+            </td>
             <td class="px-4 py-3 text-right text-muted-foreground">
               <button class="rounded-md border border-border px-2 py-1">Details</button>
             </td>
@@ -51,4 +63,35 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue';
+
+import { useColumns } from '@/composables/useMetadataQueries';
+
+const query = useColumns();
+const search = ref('');
+const selectedSensitivity = ref('');
+const selectedLanguage = ref('');
+
+const columns = computed(() => query.data.value ?? []);
+
+const sensitivityOptions = computed(() => {
+  const unique = new Set(columns.value.map((column) => column.sensitivity).filter(Boolean) as string[]);
+  return Array.from(unique);
+});
+
+const languageOptions = computed(() => {
+  const unique = new Set<string>();
+  columns.value.forEach((column) => column.lang_available?.forEach((lang) => unique.add(lang)));
+  return Array.from(unique);
+});
+
+const filteredColumns = computed(() => {
+  return columns.value.filter((column) => {
+    const name = column.display_name?.en ?? column.column_name;
+    const matchesSearch = name.toLowerCase().includes(search.value.toLowerCase());
+    const matchesSensitivity = selectedSensitivity.value ? column.sensitivity === selectedSensitivity.value : true;
+    const matchesLanguage = selectedLanguage.value ? column.lang_available?.includes(selectedLanguage.value) : true;
+    return matchesSearch && matchesSensitivity && matchesLanguage;
+  });
+});
 </script>

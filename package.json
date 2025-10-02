@@ -1,0 +1,38 @@
+{
+  "name": "rag-admin-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@tanstack/vue-query": "^5.39.1",
+    "@vueuse/core": "^10.9.0",
+    "clsx": "^2.1.0",
+    "lucide-vue-next": "^0.381.0",
+    "pinia": "^2.1.7",
+    "radix-vue": "^1.9.2",
+    "tailwind-merge": "^2.3.0",
+    "vue": "^3.4.31",
+    "vue-i18n": "^9.9.0",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.23.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.2",
+    "vite": "^5.2.11",
+    "vitest": "^1.4.0",
+    "vue-tsc": "^2.0.19"
+  }
+}

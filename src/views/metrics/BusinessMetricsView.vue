@@ -7,7 +7,10 @@
           <p class="text-sm text-muted-foreground">Define curated metrics with calculation logic, owners, and embedding
             coverage.</p>
         </div>
-        <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+        <button
+          class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          @click="openCreate()"
+        >
           New Metric
         </button>
       </div>
@@ -30,8 +33,23 @@
     </div>
 
     <div v-else class="grid gap-4 lg:grid-cols-2">
-      <Card v-for="metric in filteredMetrics" :key="metric.metric_id">
+      <Card v-for="metric in filteredMetrics" :key="metric.metric_id" class="flex flex-col">
         <MetricCardItem :metric="metric" />
+        <CardContent class="mt-auto flex items-center justify-end gap-2 border-t border-border pt-4 text-sm">
+          <button
+            class="rounded-md border border-border px-3 py-2 text-muted-foreground hover:bg-muted"
+            @click="openEdit(metric)"
+          >
+            Edit
+          </button>
+          <button
+            class="rounded-md border border-border px-3 py-2 text-destructive hover:bg-destructive/10"
+            :disabled="isDeleting === metric.metric_id"
+            @click="removeMetric(metric)"
+          >
+            {{ isDeleting === metric.metric_id ? 'Removing…' : 'Delete' }}
+          </button>
+        </CardContent>
       </Card>
       <Card v-if="filteredMetrics.length === 0">
         <CardContent class="flex items-center justify-center py-10 text-sm text-muted-foreground">
@@ -39,25 +57,30 @@
         </CardContent>
       </Card>
     </div>
+
+    <MetricFormDialog v-model:open="isDialogOpen" :metric="activeMetric" @saved="onSaved" />
   </section>
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue';
+import { computed, ref } from 'vue';
 
 import Card from '@/components/ui/Card.vue';
-import CardHeader from '@/components/ui/CardHeader.vue';
 import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
-import {useMetrics} from '@/composables/useMetadataQueries';
-import MetricCardItem from './components/MetricCardItem.vue'
+import { useMetrics } from '@/composables/useMetadataQueries';
+import { deleteBusinessMetric } from '@/api/metadata';
+import type { BusinessMetricMetadata } from '@/types/metadata';
+import MetricCardItem from './components/MetricCardItem.vue';
+import MetricFormDialog from './dialogs/MetricFormDialog.vue';
 
 const query = useMetrics();
 const metrics = computed(() => query.data.value ?? []);
 const search = ref('');
 const selectedDomain = ref('');
 const selectedRefresh = ref('');
+const isDialogOpen = ref(false);
+const activeMetric = ref<BusinessMetricMetadata | null>(null);
+const isDeleting = ref<string | null>(null);
 
 const domains = computed(() => Array.from(new Set(metrics.value.map((metric) => metric.business_domain).filter(Boolean))));
 const schedules = computed(() => Array.from(new Set(metrics.value.map((metric) => metric.refresh_schedule).filter(Boolean))));
@@ -65,10 +88,44 @@ const schedules = computed(() => Array.from(new Set(metrics.value.map((metric) =
 const filteredMetrics = computed(() => {
   const searchValue = search.value.toLowerCase();
   return metrics.value.filter((metric) => {
-    const matchesSearch = metric.metric_name.en.toLowerCase().includes(searchValue);
+    const title = metric.metric_name?.en ?? metric.metric_name?.th ?? metric.short_name ?? '';
+    const matchesSearch = title.toLowerCase().includes(searchValue);
     const matchesDomain = selectedDomain.value ? metric.business_domain === selectedDomain.value : true;
     const matchesRefresh = selectedRefresh.value ? metric.refresh_schedule === selectedRefresh.value : true;
     return matchesSearch && matchesDomain && matchesRefresh;
   });
 });
+
+function openCreate() {
+  activeMetric.value = null;
+  isDialogOpen.value = true;
+}
+
+function openEdit(metric: BusinessMetricMetadata) {
+  activeMetric.value = metric;
+  isDialogOpen.value = true;
+}
+
+async function removeMetric(metric: BusinessMetricMetadata) {
+  if (isDeleting.value || !metric.metric_id) return;
+  const confirmed = window.confirm(`Delete metric "${metric.metric_name?.en ?? metric.short_name}"?`);
+  if (!confirmed) return;
+
+  try {
+    isDeleting.value = metric.metric_id;
+    await deleteBusinessMetric(metric.metric_id);
+    await query.refetch();
+  } catch (error) {
+    // surface minimal alert to avoid silent failure
+    alert((error as Error).message ?? 'Failed to delete metric');
+  } finally {
+    isDeleting.value = null;
+  }
+}
+
+async function onSaved() {
+  isDialogOpen.value = false;
+  activeMetric.value = null;
+  await query.refetch();
+}
 </script>

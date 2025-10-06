@@ -75,6 +75,19 @@ export async function createBusinessMetric(payload: CreateMetricRequest) {
   });
 }
 
+export async function updateBusinessMetric(metricId: string, payload: CreateMetricRequest) {
+  return apiFetch<BusinessMetricMetadata>(`/metadata/business-metrics/${metricId}`, {
+    method: 'PUT',
+    body: payload
+  });
+}
+
+export async function deleteBusinessMetric(metricId: string) {
+  return apiFetch<{ success: boolean }>(`/metadata/business-metrics/${metricId}`, {
+    method: 'DELETE'
+  });
+}
+
 export async function listQueryTemplates() {
   return apiFetch<QueryTemplateMetadata[]>(`/metadata/query-templates`);
 }

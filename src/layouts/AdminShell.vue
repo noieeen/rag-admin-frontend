@@ -76,7 +76,19 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, RouterLink, RouterView } from 'vue-router';
-import { Home, Database, Table, Columns, GitBranch, FileText, Layers, LineChart, Bot, Menu as MenuIcon } from 'lucide-vue-next';
+import {
+  Home,
+  Database,
+  Table,
+  Columns,
+  GitBranch,
+  FileText,
+  Layers,
+  LineChart,
+  Bot,
+  Sparkles,
+  Menu as MenuIcon
+} from 'lucide-vue-next';
 
 import TenantSwitcher from '@/components/TenantSwitcher.vue';
 import UserMenu from '@/components/UserMenu.vue';
@@ -95,6 +107,7 @@ const navItems = [
   { to: '/templates', label: 'Templates', icon: FileText },
   { to: '/sql-patterns', label: 'SQL Patterns', icon: Layers },
   { to: '/metrics', label: 'Business Metrics', icon: LineChart },
+  { to: '/rag-playground', label: 'RAG Playground', icon: Sparkles },
   { to: '/ai-control', label: 'AI Control', icon: Bot }
 ] as const;
 

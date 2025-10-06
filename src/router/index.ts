@@ -50,6 +50,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Business Metrics' }
   },
   {
+    path: '/rag-playground',
+    name: 'rag-playground',
+    component: () => import('@/views/rag/RagPlaygroundView.vue'),
+    meta: { title: 'RAG Playground' }
+  },
+  {
     path: '/ai-control',
     name: 'ai-control',
     component: () => import('@/views/ai/AiControlView.vue'),

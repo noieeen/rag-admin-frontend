@@ -138,6 +138,7 @@ const tabs = [
   { label: 'Relations', to: '/relationships' },
   { label: 'Templates', to: '/templates' },
   { label: 'Sql Patterns', to: '/sql-patterns' },
+  { label: 'RAG Playground', to: '/rag-playground' },
   { label: 'AI Control', to: '/ai-control' }
 ] as const;
 

@@ -11,7 +11,7 @@
           <button
             class="rounded-md border border-border px-3 py-2 text-sm"
             @click="exportMetrics"
-            :disabled="!metrics.value"
+            :disabled="query.data.value.length === 0"
           >
             Export JSON
           </button>

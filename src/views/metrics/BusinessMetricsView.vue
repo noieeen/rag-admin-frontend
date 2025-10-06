@@ -7,12 +7,27 @@
           <p class="text-sm text-muted-foreground">Define curated metrics with calculation logic, owners, and embedding
             coverage.</p>
         </div>
-        <button
-          class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-          @click="openCreate()"
-        >
-          New Metric
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="exportMetrics"
+            :disabled="!metrics.value"
+          >
+            Export JSON
+          </button>
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="isImportOpen = true"
+          >
+            Import JSON
+          </button>
+          <button
+            class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            @click="openCreate()"
+          >
+            New Metric
+          </button>
+        </div>
       </div>
       <div class="flex flex-wrap gap-2 text-sm">
         <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72"
@@ -59,6 +74,7 @@
     </div>
 
     <MetricFormDialog v-model:open="isDialogOpen" :metric="activeMetric" @saved="onSaved" />
+    <MetricImportDialog v-model:open="isImportOpen" @imported="onImported" />
   </section>
 </template>
 
@@ -72,6 +88,8 @@ import { deleteBusinessMetric } from '@/api/metadata';
 import type { BusinessMetricMetadata } from '@/types/metadata';
 import MetricCardItem from './components/MetricCardItem.vue';
 import MetricFormDialog from './dialogs/MetricFormDialog.vue';
+import MetricImportDialog from './dialogs/MetricImportDialog.vue';
+import { downloadJson } from '@/utils/download';
 
 const query = useMetrics();
 const metrics = computed(() => query.data.value ?? []);
@@ -81,6 +99,7 @@ const selectedRefresh = ref('');
 const isDialogOpen = ref(false);
 const activeMetric = ref<BusinessMetricMetadata | null>(null);
 const isDeleting = ref<string | null>(null);
+const isImportOpen = ref(false);
 
 const domains = computed(() => Array.from(new Set(metrics.value.map((metric) => metric.business_domain).filter(Boolean))));
 const schedules = computed(() => Array.from(new Set(metrics.value.map((metric) => metric.refresh_schedule).filter(Boolean))));
@@ -127,5 +146,16 @@ async function onSaved() {
   isDialogOpen.value = false;
   activeMetric.value = null;
   await query.refetch();
+}
+
+async function onImported() {
+  isImportOpen.value = false;
+  await query.refetch();
+}
+
+function exportMetrics() {
+  if (!metrics.value.length) return;
+  const filename = `business-metrics-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  downloadJson(filename, metrics.value);
 }
 </script>

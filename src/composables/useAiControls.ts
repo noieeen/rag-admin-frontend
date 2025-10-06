@@ -44,10 +44,12 @@ export function useEmbeddingJobs(options: { enabled?: MaybeRef<boolean> } = {}) 
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ai', 'embedding-jobs'] })
   });
 
+  const triggerPending = computed(() => trigger.status.value === 'pending');
+
   return {
     ...query,
     triggerRefresh: trigger.mutateAsync,
-    triggering: trigger.isLoading,
+    triggering: triggerPending,
     pollingEnabled
   };
 }

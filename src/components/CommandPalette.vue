@@ -51,7 +51,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 
-import { useColumns, useDatabases, useMetrics, useTables, useTemplates } from '@/composables/useMetadataQueries';
+import { useColumns, useDatabases, useMetrics, useSynonyms, useTables, useTemplates } from '@/composables/useMetadataQueries';
 
 const open = ref(false);
 const term = ref('');
@@ -62,6 +62,7 @@ const tableQuery = useTables(false);
 const columnQuery = useColumns(false);
 const metricQuery = useMetrics();
 const templateQuery = useTemplates();
+const synonymQuery = useSynonyms();
 
 const isLoading = computed(
   () =>
@@ -69,7 +70,8 @@ const isLoading = computed(
     tableQuery.isLoading.value ||
     columnQuery.isLoading.value ||
     metricQuery.isLoading.value ||
-    templateQuery.isLoading.value
+    templateQuery.isLoading.value ||
+    synonymQuery.isLoading.value
 );
 
 const results = computed(() => {
@@ -104,10 +106,17 @@ const results = computed(() => {
     })),
     ...(templateQuery.data.value ?? []).map((template) => ({
       id: template.query_template_id,
-      title: template.natural_language_question_en,
+      title: template.natural_language_question.en,
       description: template.sql_statement,
       category: 'Template',
       to: '/templates'
+    })),
+    ...(synonymQuery.data.value ?? []).map((mapping) => ({
+      id: mapping.canonical_term,
+      title: mapping.canonical_term,
+      description: mapping.aliases.join(', '),
+      category: 'Synonym',
+      to: '/synonyms'
     }))
   ];
 });

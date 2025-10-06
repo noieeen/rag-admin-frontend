@@ -87,7 +87,8 @@ import {
   LineChart,
   Bot,
   Sparkles,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  RailSymbol
 } from 'lucide-vue-next';
 
 import TenantSwitcher from '@/components/TenantSwitcher.vue';
@@ -106,6 +107,7 @@ const navItems = [
   { to: '/relationships', label: 'Relations', icon: GitBranch },
   { to: '/templates', label: 'Templates', icon: FileText },
   { to: '/sql-patterns', label: 'SQL Patterns', icon: Layers },
+  { to: '/synonyms', label: 'Synonyms', icon: RailSymbol },
   { to: '/metrics', label: 'Business Metrics', icon: LineChart },
   { to: '/rag-playground', label: 'RAG Playground', icon: Sparkles },
   { to: '/ai-control', label: 'AI Control', icon: Bot }

@@ -4,14 +4,16 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold">Business Metrics</h1>
-          <p class="text-sm text-muted-foreground">Define curated metrics with calculation logic, owners, and embedding coverage.</p>
+          <p class="text-sm text-muted-foreground">Define curated metrics with calculation logic, owners, and embedding
+            coverage.</p>
         </div>
         <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
           New Metric
         </button>
       </div>
       <div class="flex flex-wrap gap-2 text-sm">
-        <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72" placeholder="Search metrics" v-model="search" />
+        <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72"
+               placeholder="Search metrics" v-model="search"/>
         <select class="rounded-md border border-border bg-background px-3 py-2" v-model="selectedDomain">
           <option value="">All domains</option>
           <option v-for="domain in domains" :key="domain" :value="domain">{{ domain }}</option>
@@ -29,19 +31,7 @@
 
     <div v-else class="grid gap-4 lg:grid-cols-2">
       <Card v-for="metric in filteredMetrics" :key="metric.metric_id">
-        <CardHeader>
-          <div class="flex items-center justify-between">
-            <CardTitle>{{ metric.metric_name.en }}</CardTitle>
-            <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{{ metric.short_name }}</span>
-          </div>
-          <CardDescription>{{ metric.description.en }}</CardDescription>
-        </CardHeader>
-        <CardContent class="space-y-2 text-sm text-muted-foreground">
-          <p><strong class="text-foreground">Domain:</strong> {{ metric.business_domain }}</p>
-          <p><strong class="text-foreground">Owner:</strong> {{ metric.business_owner }}</p>
-          <p><strong class="text-foreground">Refresh:</strong> {{ metric.refresh_schedule }}</p>
-          <p><strong class="text-foreground">Usage:</strong> {{ metric.usage_frequency }} queries</p>
-        </CardContent>
+        <MetricCardItem :metric="metric" />
       </Card>
       <Card v-if="filteredMetrics.length === 0">
         <CardContent class="flex items-center justify-center py-10 text-sm text-muted-foreground">
@@ -53,14 +43,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import {computed, ref} from 'vue';
 
 import Card from '@/components/ui/Card.vue';
 import CardHeader from '@/components/ui/CardHeader.vue';
 import CardContent from '@/components/ui/CardContent.vue';
 import CardTitle from '@/components/ui/CardTitle.vue';
 import CardDescription from '@/components/ui/CardDescription.vue';
-import { useMetrics } from '@/composables/useMetadataQueries';
+import {useMetrics} from '@/composables/useMetadataQueries';
+import MetricCardItem from './components/MetricCardItem.vue'
 
 const query = useMetrics();
 const metrics = computed(() => query.data.value ?? []);

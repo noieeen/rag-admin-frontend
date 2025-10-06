@@ -175,8 +175,8 @@ export interface QueryTemplateMetadata extends AuditFields {
 export interface SynonymMapping {
   canonical_term: string;
   aliases: string[];
-  entity_type: 'database' | 'table' | 'column' | 'metric' | 'template' | string;
-  entity_id: string;
+  entity_type: 'database' | 'table' | 'column' | 'business_metric' | 'query_template' | string;
+  entity_id?: string;
   brand_ref: string;
   structure?: string;
 }

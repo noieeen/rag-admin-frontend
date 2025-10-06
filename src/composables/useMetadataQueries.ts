@@ -8,6 +8,7 @@ import {
   listColumns,
   listDatabases,
   listQueryTemplates,
+  listSynonyms,
   listRelationships,
   listTables
 } from '@/api/metadata';
@@ -60,4 +61,8 @@ export function useMetrics() {
 
 export function useRelationships() {
   return useTenantAwareQuery(['metadata', 'relationships'], listRelationships);
+}
+
+export function useSynonyms(withVector = false) {
+  return useTenantAwareQuery(['metadata', 'synonyms', withVector], () => listSynonyms(withVector));
 }

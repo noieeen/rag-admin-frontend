@@ -50,6 +50,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Business Metrics' }
   },
   {
+    path: '/synonyms',
+    name: 'synonyms',
+    component: () => import('@/views/synonyms/SynonymMappingsView.vue'),
+    meta: { title: 'Synonym Mappings' }
+  },
+  {
     path: '/rag-playground',
     name: 'rag-playground',
     component: () => import('@/views/rag/RagPlaygroundView.vue'),

@@ -86,8 +86,9 @@ export async function createQueryTemplate(payload: CreateTemplateRequest) {
   });
 }
 
-export async function listSynonyms() {
-  return apiFetch<SynonymMapping[]>(`/metadata/synonym-mappings`);
+export async function listSynonyms(withVector = false) {
+  const searchParams = new URLSearchParams({ withVector: String(withVector) });
+  return apiFetch<SynonymMapping[]>(`/metadata/synonym-mappings?${searchParams.toString()}`);
 }
 
 export async function createSynonymMapping(payload: SynonymMappingRequest) {

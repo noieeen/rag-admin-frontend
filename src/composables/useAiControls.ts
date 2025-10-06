@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed, type ComputedRef, type Ref, unref } from 'vue';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 
 import { listEmbeddingJobs, listModels, setDefaultModel, triggerEmbeddingRefresh } from '@/api/ai';
@@ -22,11 +22,19 @@ export function useModels() {
   return { ...query, setDefaultModel: mutation.mutateAsync, defaultModel };
 }
 
-export function useEmbeddingJobs() {
+type MaybeRef<T> = T | Ref<T> | ComputedRef<T>;
+
+export function useEmbeddingJobs(options: { enabled?: MaybeRef<boolean> } = {}) {
+  const pollingEnabled = computed(() =>
+    options.enabled === undefined ? true : Boolean(unref(options.enabled))
+  );
+
   const query = useQuery({
     queryKey: ['ai', 'embedding-jobs'],
     queryFn: listEmbeddingJobs,
-    refetchInterval: 10_000
+    enabled: pollingEnabled,
+    refetchInterval: () => (pollingEnabled.value ? 10_000 : false),
+    refetchOnWindowFocus: false
   });
 
   const queryClient = useQueryClient();
@@ -39,6 +47,7 @@ export function useEmbeddingJobs() {
   return {
     ...query,
     triggerRefresh: trigger.mutateAsync,
-    triggering: trigger.isLoading
+    triggering: trigger.isLoading,
+    pollingEnabled
   };
 }

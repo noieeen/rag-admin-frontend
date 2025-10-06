@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import Card from '@/components/ui/Card.vue';
@@ -126,7 +126,24 @@ import { useTenantStore } from '@/stores/tenant';
 import { formatIsoDate } from '@/utils/formatters';
 
 const modelsQuery = useModels();
-const jobsQuery = useEmbeddingJobs();
+
+const isPageVisible = ref(true);
+const updateVisibility = () => {
+  if (typeof document === 'undefined') return;
+  isPageVisible.value = document.visibilityState === 'visible';
+};
+
+onMounted(() => {
+  updateVisibility();
+  document.addEventListener('visibilitychange', updateVisibility);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', updateVisibility);
+  isPageVisible.value = false;
+});
+
+const jobsQuery = useEmbeddingJobs({ enabled: isPageVisible });
 const modelMessage = ref('');
 const resource = ref('columns');
 const identifiers = ref('');

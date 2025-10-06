@@ -212,10 +212,16 @@ async function send() {
       history: messages.value.map(({ role, content }) => ({ role, content }))
     });
 
+    if (!response || typeof response !== 'object' || typeof (response as any).content !== 'string') {
+      const fallbackMessage =
+        (response as { message?: string })?.message ?? 'Invalid response from chat service';
+      throw new Error(fallbackMessage);
+    }
+
     messages.value.push({
       id: crypto.randomUUID(),
       role: 'assistant',
-      content: response.content
+      content: (response as { content: string }).content
     });
   } catch (error) {
     messages.value.push({

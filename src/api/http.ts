@@ -78,8 +78,12 @@ async function safeParseJson(response: Response) {
   if (!text) return null;
 
   if (!contentType.includes('application/json')) {
-    throw new Error(`Unexpected response content-type: ${contentType}`);
+    return { message: text };
   }
 
-  return JSON.parse(text);
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return { message: text };
+  }
 }

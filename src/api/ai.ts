@@ -2,7 +2,7 @@ import { apiFetch } from './http';
 import type { ChatRequest, ChatResponse } from '@/types/api';
 
 export async function sendChat(payload: ChatRequest) {
-  return apiFetch<ChatResponse>(`/ai/chat`, {
+  return apiFetch<ChatResponse>(`/chat/agent-chat`, {
     method: 'POST',
     body: payload
   });

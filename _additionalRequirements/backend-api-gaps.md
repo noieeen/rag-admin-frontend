@@ -127,7 +127,7 @@ This document captures backend endpoints that are referenced by the frontend imp
 ---
 
 ## 6. Chat Completion Endpoint (Enhancements)
-- **Endpoint**: `POST /ai/chat`
+- **Endpoint**: `POST /chat/agent-chat`
 - **Purpose**: Already partially implemented; ensure support for request body used in frontend.
 - **Requirements**:
   - Accept `{ brandRef, structure, content, model, history }` with `history` as array of `{ role, content }`.

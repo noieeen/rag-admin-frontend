@@ -1,0 +1,1602 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["App"]
+      }
+    },
+    "/api/metadata/overview": {
+      "get": {
+        "operationId": "MetadataController_getOverview",
+        "parameters": [
+          {
+            "name": "brandRef",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "structure",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Aggregate metadata counts" } },
+        "summary": "Metadata overview summary",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/databases": {
+      "get": {
+        "operationId": "MetadataController_listDatabases",
+        "parameters": [
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "List of databases" } },
+        "summary": "List databases",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_createDatabase",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqDatabaseDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Database metadata created" } },
+        "summary": "Create a database metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/databases/search": {
+      "get": {
+        "operationId": "MetadataController_searchDatabases",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of databases matching the vector search"
+          }
+        },
+        "summary": "Vector search databases",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/databases/{id}": {
+      "get": {
+        "operationId": "MetadataController_getDatabaseById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Database metadata" } },
+        "summary": "Get database by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateDatabase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqDatabaseDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Database metadata updated" } },
+        "summary": "Update a database metadata record",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteDatabase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Database metadata deleted" } },
+        "summary": "Delete a database metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/databases/bulk": {
+      "delete": {
+        "operationId": "MetadataController_deleteDatabases",
+        "parameters": [],
+        "responses": { "200": { "description": "Databases deleted" } },
+        "summary": "Delete database metadata in bulk",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/tables": {
+      "get": {
+        "operationId": "MetadataController_listTables",
+        "parameters": [
+          {
+            "name": "databaseId",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "List of tables" } },
+        "summary": "List tables",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_createTable",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqTableDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Table metadata created" } },
+        "summary": "Create a table metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/tables/search": {
+      "get": {
+        "operationId": "MetadataController_searchTables",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "List of tables matching the vector search" }
+        },
+        "summary": "Vector search tables",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/tables/{id}": {
+      "get": {
+        "operationId": "MetadataController_getTableById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Table metadata" } },
+        "summary": "Get table by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateTable",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqTableDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Table metadata updated" } },
+        "summary": "Update a table metadata record",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteTable",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Table metadata deleted" } },
+        "summary": "Delete a table metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/tables/bulk": {
+      "delete": {
+        "operationId": "MetadataController_deleteTables",
+        "parameters": [],
+        "responses": { "200": { "description": "Tables deleted" } },
+        "summary": "Delete table metadata in bulk",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/columns": {
+      "get": {
+        "operationId": "MetadataController_listColumns",
+        "parameters": [
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "List of columns" } },
+        "summary": "List columns",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_createColumn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqColumnDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Column metadata created" } },
+        "summary": "Create a column metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/columns/search": {
+      "get": {
+        "operationId": "MetadataController_searchColumns",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "List of columns matching the vector search" }
+        },
+        "summary": "Vector search columns",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/columns/{id}": {
+      "get": {
+        "operationId": "MetadataController_getColumnById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Column metadata" } },
+        "summary": "Get column by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateColumn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqColumnDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Column metadata updated" } },
+        "summary": "Update a column metadata record",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteColumn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Column metadata deleted" } },
+        "summary": "Delete a column metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/columns/bulk": {
+      "delete": {
+        "operationId": "MetadataController_deleteColumns",
+        "parameters": [],
+        "responses": { "200": { "description": "Columns deleted" } },
+        "summary": "Delete column metadata in bulk",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/relationships": {
+      "get": {
+        "operationId": "MetadataController_listRelationships",
+        "parameters": [
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "List of relationships" } },
+        "summary": "List relationships",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_createRelationship",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqRelationshipDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Relationship metadata created" }
+        },
+        "summary": "Create a relationship metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/relationships/search": {
+      "get": {
+        "operationId": "MetadataController_searchRelationships",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of relationships matching the vector search"
+          }
+        },
+        "summary": "Vector search relationships",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/relationships/{id}": {
+      "get": {
+        "operationId": "MetadataController_getRelationshipById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Relationship metadata" } },
+        "summary": "Get relationship by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateRelationship",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqRelationshipDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Relationship metadata updated" }
+        },
+        "summary": "Update a relationship metadata record",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteRelationship",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Relationship metadata deleted" }
+        },
+        "summary": "Delete a relationship metadata record",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/relationships/bulk": {
+      "delete": {
+        "operationId": "MetadataController_deleteRelationships",
+        "parameters": [],
+        "responses": { "200": { "description": "Relationships deleted" } },
+        "summary": "Delete relationship metadata in bulk",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/create-collection": {
+      "get": {
+        "operationId": "MetadataController_createCollection",
+        "parameters": [],
+        "responses": { "200": { "description": "Generate AI response" } },
+        "summary": "Generate AI response",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/query-templates": {
+      "get": {
+        "operationId": "MetadataController_listQueryTemplates",
+        "parameters": [
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "List of metadata query templates" }
+        },
+        "summary": "List metadata query templates",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_upsertQueryTemplate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqTemplateDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Metadata query template upserted" }
+        },
+        "summary": "Create or update a metadata query template",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/query-templates/search": {
+      "get": {
+        "operationId": "MetadataController_searchQueryTemplates",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of query templates matching the vector search"
+          }
+        },
+        "summary": "Vector search query templates",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/query-templates/{id}": {
+      "get": {
+        "operationId": "MetadataController_getQueryTemplateById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Metadata query template" } },
+        "summary": "Get metadata query template by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateQueryTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqTemplateDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Metadata query template updated" }
+        },
+        "summary": "Update a metadata query template",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteQueryTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Metadata query template deleted" }
+        },
+        "summary": "Delete metadata query template",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/query-templates/bulk": {
+      "post": {
+        "operationId": "MetadataController_upsertQueryTemplates",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqTemplatesDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Metadata query templates upserted" }
+        },
+        "summary": "Create metadata query templates in bulk",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteQueryTemplates",
+        "parameters": [],
+        "responses": {
+          "200": { "description": "Metadata query templates deleted" }
+        },
+        "summary": "Delete metadata query templates",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/business-metrics": {
+      "get": {
+        "operationId": "MetadataController_listBusinessMetrics",
+        "parameters": [
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "List of business metrics" } },
+        "summary": "List business metrics",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_createBusinessMetric",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqBusinessMetricDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Business metric created" } },
+        "summary": "Create a business metric",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/business-metrics/{id}": {
+      "get": {
+        "operationId": "MetadataController_getBusinessMetricById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Business metric" } },
+        "summary": "Get business metric by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateBusinessMetric",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqBusinessMetricDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Business metric updated" } },
+        "summary": "Update a business metric",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteBusinessMetric",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Business metric deleted" } },
+        "summary": "Delete a business metric",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/business-metrics/search": {
+      "get": {
+        "operationId": "MetadataController_searchBusinessMetrics",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of business metrics matching the vector search"
+          }
+        },
+        "summary": "Vector search business metrics",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/business-metrics/bulk": {
+      "delete": {
+        "operationId": "MetadataController_deleteBusinessMetrics",
+        "parameters": [],
+        "responses": { "200": { "description": "Business metrics deleted" } },
+        "summary": "Delete business metrics in bulk",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/synonym-mappings": {
+      "get": {
+        "operationId": "MetadataController_listSynonymMappings",
+        "parameters": [
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "List of synonym mappings" } },
+        "summary": "List synonym mappings",
+        "tags": ["Metadata"]
+      },
+      "post": {
+        "operationId": "MetadataController_createSynonymMapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqSynonymMappingDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Synonym mapping created" } },
+        "summary": "Create a synonym mapping",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/synonym-mappings/{id}": {
+      "get": {
+        "operationId": "MetadataController_getSynonymMappingById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Synonym mapping" } },
+        "summary": "Get synonym mapping by id",
+        "tags": ["Metadata"]
+      },
+      "put": {
+        "operationId": "MetadataController_updateSynonymMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqSynonymMappingDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Synonym mapping updated" } },
+        "summary": "Update a synonym mapping",
+        "tags": ["Metadata"]
+      },
+      "delete": {
+        "operationId": "MetadataController_deleteSynonymMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Synonym mapping deleted" } },
+        "summary": "Delete a synonym mapping",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/synonym-mappings/search": {
+      "get": {
+        "operationId": "MetadataController_searchSynonymMappings",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "scoreThreshold",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of synonym mappings matching the vector search"
+          }
+        },
+        "summary": "Vector search synonym mappings",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/metadata/synonym-mappings/bulk": {
+      "delete": {
+        "operationId": "MetadataController_deleteSynonymMappings",
+        "parameters": [],
+        "responses": { "200": { "description": "Synonym mappings deleted" } },
+        "summary": "Delete synonym mappings in bulk",
+        "tags": ["Metadata"]
+      }
+    },
+    "/api/ai/embedding": {
+      "post": {
+        "operationId": "AiController_generate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  { "type": "string", "description": "Raw text content" },
+                  {
+                    "type": "object",
+                    "required": ["text"],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "description": "Text content to embed"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": ["content"],
+                    "properties": {
+                      "content": {
+                        "type": "string",
+                        "description": "Text content to embed"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Embedding generated successfully" }
+        },
+        "summary": "Generate embedding vector",
+        "tags": ["Ai"]
+      }
+    },
+    "/api/ai/models": {
+      "get": {
+        "operationId": "AiController_listModels",
+        "parameters": [
+          {
+            "name": "brandRef",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "withVector",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "AI models directory" } },
+        "summary": "List AI models",
+        "tags": ["Ai"]
+      }
+    },
+    "/api/ai/models/default": {
+      "post": {
+        "operationId": "AiController_setDefaultModel",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SetDefaultModelDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Default model updated" } },
+        "summary": "Set default AI model",
+        "tags": ["Ai"]
+      }
+    },
+    "/api/ai/embeddings/jobs": {
+      "get": {
+        "operationId": "AiController_listEmbeddingJobs",
+        "parameters": [
+          {
+            "name": "brandRef",
+            "required": true,
+            "in": "query",
+            "schema": { "example": "BL6ZLW8PXBXD", "type": "string" }
+          },
+          {
+            "name": "structure",
+            "required": false,
+            "in": "query",
+            "schema": { "example": "L4", "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": { "example": 20, "type": "number" }
+          }
+        ],
+        "responses": { "200": { "description": "Embedding jobs" } },
+        "summary": "List embedding jobs",
+        "tags": ["Ai"]
+      }
+    },
+    "/api/ai/embeddings/refresh": {
+      "post": {
+        "operationId": "AiController_triggerEmbeddingRefresh",
+        "parameters": [
+          {
+            "name": "brandRef",
+            "required": true,
+            "in": "query",
+            "schema": { "example": "BL6ZLW8PXBXD", "type": "string" }
+          },
+          {
+            "name": "structure",
+            "required": false,
+            "in": "query",
+            "schema": { "example": "L4", "type": "string" }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": { "example": 20, "type": "number" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerEmbeddingRefreshDto"
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Embedding job queued" } },
+        "summary": "Trigger embedding refresh job",
+        "tags": ["Ai"]
+      }
+    },
+    "/api/chat/agent-chat": {
+      "post": {
+        "operationId": "ChatController_generate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqChatDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Generate AI response" } },
+        "summary": "Generate AI response",
+        "tags": ["Chat"]
+      }
+    },
+    "/api/chat/agent-chat/stream": {
+      "post": {
+        "operationId": "ChatStreamController_stream",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReqChatDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Streams the chat response with tool events as SSE"
+          }
+        },
+        "summary": "Stream AI chat response",
+        "tags": ["ChatStream"]
+      }
+    },
+    "/api/rag/metadata/preview": {
+      "post": {
+        "description": "Runs a vector search against metadata entities using the supplied filters to validate context before AI queries.",
+        "operationId": "RagMetadataController_previewMetadata",
+        "parameters": [
+          {
+            "name": "brandRef",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewMetadataRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewMetadataResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Preview filtered metadata without invoking the AI pipeline",
+        "tags": ["RAG Metadata"]
+      }
+    }
+  },
+  "info": {
+    "title": "Cats example",
+    "description": "The cats API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [{ "name": "cats", "description": "" }],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "ReqDatabaseDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "database": { "type": "object" }
+        },
+        "required": ["brandRef", "database"]
+      },
+      "ReqTableDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "table": { "type": "object" }
+        },
+        "required": ["brandRef", "table"]
+      },
+      "ReqColumnDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "column": { "type": "object" }
+        },
+        "required": ["brandRef", "column"]
+      },
+      "ReqRelationshipDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "relationship": { "type": "object" }
+        },
+        "required": ["brandRef", "relationship"]
+      },
+      "QueryTemplateModel": { "type": "object", "properties": {} },
+      "ReqTemplateDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "template": {
+            "example": {
+              "query_template_id": "qt-001-top-customers-by-points",
+              "type": "query_template",
+              "brand_ref": "BL6ZLW8PXBXD",
+              "structure": "L4",
+              "database_id": "46cb1ce1-848b-4561-bed7-1f35c1a81a5c",
+              "natural_language_question": {
+                "en": "Show the top N loyalty members by current point balance",
+                "th": "แสดงสมาชิกสะสมแต้ม N อันดับแรกที่มียอดคะแนนคงเหลือสูงสุด"
+              },
+              "sql_statement": "SELECT ...",
+              "relevant_table_ids": ["02c6bbd5-0c74-4193-a9cb-a84e3ccd0429"],
+              "relevant_column_ids": ["f3d3a3df-6c4a-4dba-b1b9-2d4cb1122334"],
+              "tags": ["loyalty", "ranking"],
+              "usage_patterns": {
+                "primary_use_case": "Identify high-value loyalty members",
+                "common_filters": ["Point_Balance >= 5000"],
+                "common_sorts": ["Point_Balance DESC"],
+                "peak_usage_hours": [9, 12, 15]
+              }
+            },
+            "allOf": [{ "$ref": "#/components/schemas/QueryTemplateModel" }]
+          }
+        },
+        "required": ["brandRef", "template"]
+      },
+      "ReqTemplatesDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "templates": {
+            "example": [
+              {
+                "query_template_id": "qt-001-top-customers-by-points",
+                "type": "query_template",
+                "brand_ref": "BL6ZLW8PXBXD",
+                "structure": "L4",
+                "database_id": "46cb1ce1-848b-4561-bed7-1f35c1a81a5c",
+                "natural_language_question": {
+                  "en": "Show the top N loyalty members by current point balance",
+                  "th": "แสดงสมาชิกสะสมแต้ม N อันดับแรกที่มียอดคะแนนคงเหลือสูงสุด"
+                },
+                "sql_statement": "SELECT ...",
+                "relevant_table_ids": ["02c6bbd5-0c74-4193-a9cb-a84e3ccd0429"],
+                "relevant_column_ids": ["f3d3a3df-6c4a-4dba-b1b9-2d4cb1122334"],
+                "tags": ["loyalty", "ranking"]
+              }
+            ],
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["brandRef", "templates"]
+      },
+      "ReqBusinessMetricDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "metric": {
+            "type": "object",
+            "example": {
+              "brandRef": "BL6ZLW8PXBXD",
+              "metric": {
+                "type": "business_metric",
+                "database_id": "46cb1ce1-848b-4561-bed7-1f35c1a81a5c",
+                "metric_name": {
+                  "en": "Customer Lifetime Value",
+                  "th": "มูลค่าตลอดชีพของลูกค้า"
+                },
+                "short_name": "CLV",
+                "description": {
+                  "en": "Total revenue generated by a customer across all orders since enrollment. Used for customer segmentation and marketing budget allocation.",
+                  "th": "รายได้รวมที่ลูกค้าสร้างจากคำสั่งซื้อทั้งหมดนับตั้งแต่ลงทะเบียน ใช้สำหรับการแบ่งกลุ่มลูกค้าและจัดสรรงบการตลาด"
+                },
+                "business_domain": "customer-analytics",
+                "calculation_logic": "SUM(Total) grouped by CustomerId for all completed orders",
+                "sql_expression": "SELECT CustomerId, SUM(Total) AS CLV FROM dbo.BP_Order GROUP BY CustomerId",
+                "relevant_table_ids": ["b1c181fd-3af6-4af9-9ce8-bb0fdd5ef884"],
+                "relevant_column_ids": [
+                  "b4f5ed31-2901-435d-95a7-4f87cb6805b6",
+                  "64eaa9b2-a63e-44c7-9f76-8738cd0d80a9"
+                ],
+                "unit_of_measure": "THB",
+                "aggregation_type": "SUM",
+                "grain": "customer",
+                "business_owner": "crm-analytics",
+                "refresh_schedule": "daily",
+                "related_metrics": ["avg_order_value", "order_frequency"],
+                "common_filters": [
+                  "registration_date >= '2024-01-01'",
+                  "Point_Balance > 0"
+                ],
+                "tags": ["revenue", "customer", "kpi"],
+                "usage_frequency": 0,
+                "last_queried": "2025-09-28T14:32:00Z"
+              }
+            }
+          }
+        },
+        "required": ["brandRef", "metric"]
+      },
+      "ReqSynonymMappingDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "mapping": {
+            "type": "object",
+            "example": {
+              "canonical_term": "Customer",
+              "aliases": ["member", "user", "client"],
+              "entity_type": "table",
+              "entity_id": "02c6bbd5-0c74-4193-a9cb-a84e3ccd0429"
+            }
+          }
+        },
+        "required": ["brandRef", "mapping"]
+      },
+      "SetDefaultModelDto": {
+        "type": "object",
+        "properties": {
+          "model": { "type": "string", "example": "gpt-4.1-mini" },
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "structure": { "type": "string", "example": "L4" }
+        },
+        "required": ["model"]
+      },
+      "TriggerEmbeddingRefreshDto": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "enum": ["databases", "tables", "columns", "metrics", "templates"]
+          },
+          "ids": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["resource", "ids"]
+      },
+      "ReqChatDto": {
+        "type": "object",
+        "properties": {
+          "brandRef": { "type": "string", "example": "BL6ZLW8PXBXD" },
+          "content": { "type": "string", "example": "Hello Choco !!" },
+          "model": { "type": "string", "example": "gpt-4.1-mini" },
+          "structure": { "type": "string", "example": "enterprise" },
+          "history": {
+            "example": [{ "role": "user", "content": "Hello Choco !!" }],
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "temperature": {
+            "type": "number",
+            "example": 0.2,
+            "minimum": 0,
+            "maximum": 2
+          },
+          "ragEnabled": { "type": "boolean", "example": true },
+          "stream": { "type": "boolean", "example": true },
+          "metadata": {
+            "type": "object",
+            "example": { "conversationId": "uuid" }
+          },
+          "reasoningMode": { "type": "string", "example": "default" }
+        },
+        "required": ["brandRef", "content", "model"]
+      },
+      "PreviewMetadataIncludeDto": {
+        "type": "object",
+        "properties": {
+          "databases": {
+            "description": "Include databases in results. Provide true for all or an array of database IDs.",
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "uuid" }
+              }
+            ],
+            "example": true
+          },
+          "tables": {
+            "description": "Include tables in results. Provide true for all or an array of table IDs.",
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "uuid" }
+              }
+            ],
+            "example": ["b1c181fd-3af6-4af9-9ce8-bb0fdd5ef884"]
+          },
+          "columns": {
+            "description": "Include columns in results. Provide true for all or an array of column IDs.",
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "uuid" }
+              }
+            ]
+          },
+          "businessMetrics": {
+            "description": "Include business metrics in results. Provide true for all or an array of metric IDs.",
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "uuid" }
+              }
+            ]
+          },
+          "queryTemplates": {
+            "description": "Include query templates in results. Provide true for all or an array of template IDs.",
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "uuid" }
+              }
+            ]
+          },
+          "synonymMappings": {
+            "description": "Include synonym mappings in results. Provide true for all or an array of synonym IDs.",
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "uuid" }
+              }
+            ]
+          }
+        }
+      },
+      "PreviewMetadataRequestDto": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "example": "How many active loyalty members this month?"
+          },
+          "scoreThreshold": {
+            "type": "number",
+            "example": 0.72,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "topK": {
+            "type": "number",
+            "example": 10,
+            "minimum": 1,
+            "maximum": 20
+          },
+          "include": {
+            "$ref": "#/components/schemas/PreviewMetadataIncludeDto"
+          },
+          "tags": {
+            "description": "Optional metadata tags to boost specific context.",
+            "example": ["loyalty", "kpi"],
+            "maxItems": 20,
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["query"]
+      },
+      "PreviewMetadataItemDto": {
+        "type": "object",
+        "properties": {
+          "entityType": { "type": "string", "example": "business_metric" },
+          "entityId": {
+            "type": "string",
+            "example": "7c5a3d91-4b2e-4f19-a8c7-9e2f1b8d6c4a"
+          },
+          "score": { "type": "number", "example": 0.89 },
+          "title": { "type": "string", "example": "Active Loyalty Members" },
+          "snippet": {
+            "type": "string",
+            "example": "Count of customers who have made at least one purchase in the last 90 days..."
+          }
+        },
+        "required": ["entityType", "entityId", "score", "title"]
+      },
+      "PreviewMetadataResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PreviewMetadataItemDto" }
+          }
+        },
+        "required": ["items"]
+      }
+    }
+  }
+}

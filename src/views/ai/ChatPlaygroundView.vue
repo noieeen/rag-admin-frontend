@@ -72,14 +72,19 @@
                     <span>·</span>
                     <span>{{ formatTimestamp(message.timestamp) }}</span>
                   </div>
-                  <div class="whitespace-pre-wrap leading-relaxed">
+                  <div class="leading-relaxed">
                     <template v-if="message.role === 'assistant'">
-                      <span v-if="message.content">{{ message.content }}</span>
+                      <VueMarkdown
+                        v-if="message.format === 'markdown'"
+                        :source="message.content || ''"
+                        class="prose prose-sm max-w-none text-foreground prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2"
+                      />
+                      <span v-else-if="message.content" class="whitespace-pre-wrap text-foreground">{{ message.content }}</span>
                       <span v-else class="text-muted-foreground">…</span>
                       <span v-if="message.isStreaming" class="ml-1 inline-block animate-pulse text-muted-foreground">▌</span>
                     </template>
                     <template v-else>
-                      {{ message.content }}
+                      <span class="whitespace-pre-wrap">{{ message.content }}</span>
                     </template>
                   </div>
                 </div>
@@ -231,6 +236,7 @@ import { useModels } from '@/composables/useAiControls';
 import { streamChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';
 import type { AgentStreamEventType } from '@/types/api';
+import VueMarkdown from 'vue-markdown';
 
 const STREAM_APPEND_INTERVAL_MS = 40;
 
@@ -240,6 +246,7 @@ interface ChatMessageRecord {
   content: string;
   timestamp: string;
   isStreaming?: boolean;
+  format?: 'text' | 'markdown';
 }
 
 interface ConsoleEntry {
@@ -293,6 +300,7 @@ const autoScrollConsole = ref(true);
 const tokens = reactive<{ usage?: string }>({});
 
 const pendingAssistantBuffer = ref('');
+const pendingAssistantFormat = ref<'text' | 'markdown' | null>(null);
 let appendThrottleTimer: ReturnType<typeof setTimeout> | null = null;
 
 const chatScrollRef = ref<HTMLElement | null>(null);
@@ -377,7 +385,7 @@ watch(
 );
 
 function appendThinkingTrace(payload: unknown) {
-  const text = extractText(payload);
+  const { text } = extractContent(payload);
   if (!text) return;
   thinkingTraces.value = [
     ...thinkingTraces.value,
@@ -439,7 +447,7 @@ function stringifyMaybeJson(value: unknown) {
   return String(value);
 }
 
-function updateAssistantMessage(update: { append?: string | null; finalize?: string | null }) {
+function updateAssistantMessage(update: { append?: string | null; finalize?: string | null; format?: 'text' | 'markdown' }) {
   if (!pendingAssistantId.value) return;
   const index = messages.value.findIndex((item) => item.id === pendingAssistantId.value);
   if (index === -1) return;
@@ -450,15 +458,25 @@ function updateAssistantMessage(update: { append?: string | null; finalize?: str
   if (typeof update.finalize === 'string') {
     draft.content = update.finalize;
   }
+  if (update.format) {
+    draft.format = update.format;
+  }
   if (!update.append && typeof update.finalize === 'string') {
     draft.isStreaming = false;
   }
   messages.value.splice(index, 1, draft);
 }
 
-function queueAssistantAppend(text: string) {
+function queueAssistantAppend(text: string, format?: 'text' | 'markdown') {
   if (!text) return;
   pendingAssistantBuffer.value += text;
+  if (format) {
+    if (format === 'markdown') {
+      pendingAssistantFormat.value = 'markdown';
+    } else if (!pendingAssistantFormat.value) {
+      pendingAssistantFormat.value = format;
+    }
+  }
   if (appendThrottleTimer !== null) return;
 
   appendThrottleTimer = setTimeout(() => {
@@ -479,74 +497,127 @@ function flushAssistantBuffer() {
     return;
   }
 
-  updateAssistantMessage({ append: pendingAssistantBuffer.value });
+  updateAssistantMessage({ append: pendingAssistantBuffer.value, format: pendingAssistantFormat.value ?? undefined });
   pendingAssistantBuffer.value = '';
+  pendingAssistantFormat.value = null;
   clearAppendTimer();
 }
 
 function resetAssistantBuffer() {
   pendingAssistantBuffer.value = '';
+  pendingAssistantFormat.value = null;
   clearAppendTimer();
 }
 
-function extractText(payload: unknown): string | null {
+function detectFormat(value: unknown): 'text' | 'markdown' | undefined {
+  if (value === 'markdown') return 'markdown';
+  if (value === 'text') return 'text';
+  return undefined;
+}
+
+function normalizeContent(
+  value: unknown,
+  inheritedFormat?: 'text' | 'markdown'
+): { text: string | null; format?: 'text' | 'markdown' } {
+  if (value === null || value === undefined) {
+    return { text: null, format: inheritedFormat };
+  }
+
+  if (typeof value === 'string') {
+    return { text: value, format: inheritedFormat };
+  }
+
+  if (Array.isArray(value)) {
+    let aggregated = '';
+    let format = inheritedFormat;
+    value.forEach((item) => {
+      const result = normalizeContent(item, format);
+      if (result.text) {
+        aggregated += result.text;
+      }
+      if (result.format === 'markdown') {
+        format = 'markdown';
+      }
+    });
+    return { text: aggregated || null, format };
+  }
+
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const format = detectFormat(obj.format) ?? inheritedFormat;
+
+    if (typeof obj.text === 'string') {
+      return { text: obj.text, format };
+    }
+
+    if (typeof obj.message === 'string') {
+      return { text: obj.message, format };
+    }
+
+    if ('content' in obj) {
+      return normalizeContent(obj.content, format);
+    }
+
+    if ('delta' in obj) {
+      return normalizeContent(obj.delta, format);
+    }
+  }
+
+  return { text: null, format: inheritedFormat };
+}
+
+function extractContent(payload: unknown): { text: string | null; format?: 'text' | 'markdown' } {
+  if (payload === null || payload === undefined) {
+    return { text: null };
+  }
+
   if (typeof payload === 'string') {
-    return payload;
+    return { text: payload, format: undefined };
   }
 
-  if (!payload || typeof payload !== 'object') {
-    return null;
+  if (typeof payload !== 'object') {
+    return { text: null };
   }
 
-  const maybeText = (payload as Record<string, unknown>).text;
-  if (typeof maybeText === 'string') {
-    return maybeText;
+  const record = payload as Record<string, unknown>;
+  const topFormat = detectFormat(record.format);
+
+  if (typeof record.text === 'string') {
+    return { text: record.text, format: topFormat };
   }
 
-  if ('message' in (payload as Record<string, unknown>) && typeof (payload as Record<string, unknown>).message === 'string') {
-    return (payload as Record<string, string>).message;
+  if (typeof record.message === 'string') {
+    return { text: record.message, format: topFormat };
   }
 
-  if ('content' in (payload as Record<string, unknown>)) {
-    const content = (payload as Record<string, unknown>).content;
-    if (typeof content === 'string') return content;
-    if (Array.isArray(content)) {
-      return content
-        .map((item) => {
-          if (typeof item === 'string') return item;
-          if (item && typeof item === 'object' && 'text' in item && typeof item.text === 'string') {
-            return item.text;
-          }
-          return '';
-        })
-        .join('');
-    }
-    if (content && typeof content === 'object') {
-      if ('message' in (content as Record<string, unknown>) && typeof (content as Record<string, unknown>).message === 'string') {
-        return (content as Record<string, string>).message;
-      }
-      if ('text' in (content as Record<string, unknown>) && typeof (content as Record<string, unknown>).text === 'string') {
-        return (content as Record<string, string>).text;
-      }
-    }
+  if ('delta' in record) {
+    const result = normalizeContent(record.delta, topFormat);
+    if (result.text !== null) return result;
   }
 
-  if ('delta' in (payload as Record<string, unknown>)) {
-    const delta = (payload as Record<string, unknown>).delta;
-    if (typeof delta === 'string') return delta;
-    if (delta && typeof delta === 'object') {
-      if ('content' in (delta as Record<string, unknown>) && typeof (delta as Record<string, unknown>).content === 'string') {
-        return (delta as Record<string, string>).content;
-      }
-    }
+  if ('contentDelta' in record) {
+    const result = normalizeContent(record.contentDelta, topFormat);
+    if (result.text !== null) return result;
   }
 
-  if ('contentDelta' in (payload as Record<string, unknown>)) {
-    const delta = (payload as Record<string, unknown>).contentDelta;
-    if (typeof delta === 'string') return delta;
+  if ('content' in record) {
+    const result = normalizeContent(record.content, topFormat);
+    if (result.text !== null) return result;
   }
 
-  return null;
+  if ('text' in record && typeof record.text === 'string') {
+    return { text: String(record.text), format: topFormat };
+  }
+
+  if ('message' in record && typeof record.message === 'string') {
+    return { text: String(record.message), format: topFormat };
+  }
+
+  if ('delta' in record && typeof record.delta === 'string') {
+    return { text: String(record.delta), format: topFormat };
+  }
+
+  return { text: null, format: topFormat };
 }
 
 async function startChat() {
@@ -727,38 +798,37 @@ function processEvent(eventName: string, payloadString: string) {
       }
       break;
     case 'message': {
-      const text = extractText(parsedPayload);
+      const { text, format } = extractContent(parsedPayload);
       if (text) {
-        queueAssistantAppend(text);
+        queueAssistantAppend(text, format);
       }
       break;
     }
-    case 'final':
-      {
-        flushAssistantBuffer();
-        const text = extractText(parsedPayload);
-        if (text) {
-          updateAssistantMessage({ finalize: text });
-        }
-        if (
-          parsedPayload &&
-          typeof parsedPayload === 'object' &&
-          'tokenBreakdown' in parsedPayload &&
-          parsedPayload.tokenBreakdown &&
-          typeof parsedPayload.tokenBreakdown === 'object'
-        ) {
-          const breakdown = parsedPayload.tokenBreakdown as Record<string, unknown>;
-          const promptRaw = breakdown.promptTokens ?? breakdown.prompt;
-          const completionRaw = breakdown.completionTokens ?? breakdown.completion;
-          if (promptRaw !== undefined || completionRaw !== undefined) {
-            const prompt = typeof promptRaw === 'number' ? promptRaw : promptRaw ?? '?';
-            const completion = typeof completionRaw === 'number' ? completionRaw : completionRaw ?? '?';
-            tokens.usage = `Prompt: ${prompt} · Completion: ${completion}`;
-          }
-        }
-        streamStatus.value = 'completed';
+    case 'final': {
+      const { text, format } = extractContent(parsedPayload);
+      flushAssistantBuffer();
+      if (text) {
+        updateAssistantMessage({ finalize: text, format: format ?? undefined });
       }
+      if (
+        parsedPayload &&
+        typeof parsedPayload === 'object' &&
+        'tokenBreakdown' in parsedPayload &&
+        parsedPayload.tokenBreakdown &&
+        typeof parsedPayload.tokenBreakdown === 'object'
+      ) {
+        const breakdown = parsedPayload.tokenBreakdown as Record<string, unknown>;
+        const promptRaw = breakdown.promptTokens ?? breakdown.prompt;
+        const completionRaw = breakdown.completionTokens ?? breakdown.completion;
+        if (promptRaw !== undefined || completionRaw !== undefined) {
+          const prompt = typeof promptRaw === 'number' ? promptRaw : promptRaw ?? '?';
+          const completion = typeof completionRaw === 'number' ? completionRaw : completionRaw ?? '?';
+          tokens.usage = `Prompt: ${prompt} · Completion: ${completion}`;
+        }
+      }
+      streamStatus.value = 'completed';
       break;
+    }
     case 'thinking':
       appendThinkingTrace(parsedPayload);
       break;
@@ -772,22 +842,21 @@ function processEvent(eventName: string, payloadString: string) {
         tokens.usage = `Total Tokens: ${(parsedPayload as Record<string, number>).tokensUsed}`;
       }
       break;
-    case 'error':
-      {
-        flushAssistantBuffer();
-        const errorText = extractText(parsedPayload) ?? 'Unknown error';
-        updateAssistantMessage({ finalize: `⚠️ ${errorText}` });
-        streamStatus.value = 'failed';
+    case 'error': {
+      flushAssistantBuffer();
+      const { text } = extractContent(parsedPayload);
+      const errorText = text ?? 'Unknown error';
+      updateAssistantMessage({ finalize: `⚠️ ${errorText}`, format: 'text' });
+      streamStatus.value = 'failed';
+      break;
+    }
+    default: {
+      const { text, format } = extractContent(parsedPayload);
+      if (text) {
+        queueAssistantAppend(text, format);
       }
       break;
-    default:
-      {
-        const text = extractText(parsedPayload);
-        if (text) {
-          queueAssistantAppend(text);
-        }
-      }
-      break;
+    }
   }
 }
 

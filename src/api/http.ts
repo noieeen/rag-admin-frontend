@@ -12,6 +12,27 @@ function resolveBaseUrl() {
   return `${origin}${normalized}`;
 }
 
+export function createApiUrl(path: string, extraParams: Record<string, string | number | boolean | undefined | null> = {}) {
+  const tenantStore = useTenantStore();
+  const baseUrl = resolveBaseUrl().replace(/\/$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const url = new URL(`${baseUrl}${normalizedPath}`);
+
+  if (tenantStore?.activeTenant) {
+    url.searchParams.set('brandRef', tenantStore.activeTenant.brandRef);
+    if (tenantStore.activeTenant.structure) {
+      url.searchParams.set('structure', tenantStore.activeTenant.structure);
+    }
+  }
+
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    url.searchParams.set(key, String(value));
+  });
+
+  return url;
+}
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface RequestOptions<TBody> {
@@ -25,22 +46,12 @@ export async function apiFetch<TResponse, TBody = unknown>(
   path: string,
   options: RequestOptions<TBody> = {}
 ): Promise<TResponse> {
-  const tenantStore = useTenantStore();
-
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(options.headers ?? {})
   };
 
-  const baseUrl = resolveBaseUrl().replace(/\/$/, '');
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const url = new URL(`${baseUrl}${normalizedPath}`);
-  if (tenantStore?.activeTenant) {
-    url.searchParams.set('brandRef', tenantStore.activeTenant.brandRef);
-    if (tenantStore.activeTenant.structure) {
-      url.searchParams.set('structure', tenantStore.activeTenant.structure);
-    }
-  }
+  const url = createApiUrl(path);
 
   const response = await fetch(url.toString(), {
     method: options.method ?? 'GET',

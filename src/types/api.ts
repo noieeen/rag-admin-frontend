@@ -65,6 +65,9 @@ export interface ChatRequest extends BaseMetadataRequest {
   content: string;
   model: string;
   history: ChatMessage[];
+  temperature?: number;
+  ragEnabled?: boolean;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ChatResponse {
@@ -73,4 +76,26 @@ export interface ChatResponse {
     promptTokens: number;
     completionTokens: number;
   };
+}
+
+export interface ChatStreamRequest extends ChatRequest {
+  stream?: boolean;
+  reasoningMode?: 'default' | 'verbose';
+}
+
+export type AgentStreamEventType =
+  | 'status'
+  | 'tool_call'
+  | 'tool_result'
+  | 'metadata'
+  | 'message'
+  | 'thinking'
+  | 'final'
+  | 'error';
+
+export interface AgentStreamEvent<TPayload = unknown> {
+  type: AgentStreamEventType | (string & {});
+  timestamp?: string;
+  payload: TPayload;
+  raw?: unknown;
 }

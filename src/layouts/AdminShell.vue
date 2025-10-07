@@ -85,6 +85,7 @@ import {
   FileText,
   Layers,
   LineChart,
+  MessageSquare,
   Bot,
   Sparkles,
   Menu as MenuIcon,
@@ -109,6 +110,7 @@ const navItems = [
   { to: '/sql-patterns', label: 'SQL Patterns', icon: Layers },
   { to: '/synonyms', label: 'Synonyms', icon: RailSymbol },
   { to: '/metrics', label: 'Business Metrics', icon: LineChart },
+  { to: '/chat-playground', label: 'Chat Playground', icon: MessageSquare },
   { to: '/rag-playground', label: 'RAG Playground', icon: Sparkles },
   { to: '/ai-control', label: 'AI Control', icon: Bot }
 ] as const;

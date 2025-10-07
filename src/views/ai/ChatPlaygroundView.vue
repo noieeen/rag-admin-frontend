@@ -74,10 +74,9 @@
                   </div>
                   <div class="leading-relaxed">
                     <template v-if="message.role === 'assistant'">
-                      <VueMarkdown
+                      <MarkdownRenderer
                         v-if="message.format === 'markdown'"
                         :source="message.content || ''"
-                        class="prose prose-sm max-w-none text-foreground prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2"
                       />
                       <span v-else-if="message.content" class="whitespace-pre-wrap text-foreground">{{ message.content }}</span>
                       <span v-else class="text-muted-foreground">…</span>
@@ -236,7 +235,7 @@ import { useModels } from '@/composables/useAiControls';
 import { streamChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';
 import type { AgentStreamEventType } from '@/types/api';
-import VueMarkdown from 'vue-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue';
 
 const STREAM_APPEND_INTERVAL_MS = 40;
 

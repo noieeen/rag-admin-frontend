@@ -62,10 +62,9 @@
             </div>
             <div class="mt-2 leading-relaxed">
               <template v-if="message.role === 'assistant'">
-                <VueMarkdown
+                <MarkdownRenderer
                   v-if="message.format === 'markdown'"
                   :source="message.content || ''"
-                  class="prose prose-sm max-w-none text-foreground prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2"
                 />
                 <span v-else-if="message.content" class="whitespace-pre-wrap">{{ message.content }}</span>
                 <span v-else class="text-muted-foreground">Thinking…</span>
@@ -162,7 +161,7 @@ import { Loader2 } from 'lucide-vue-next';
 import { useModels } from '@/composables/useAiControls';
 import { streamChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';
-import VueMarkdown from 'vue-markdown';
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue';
 
 interface ToolRun {
   id: string;

@@ -88,6 +88,7 @@ import {
   MessageSquare,
   Bot,
   Sparkles,
+  Sparkles as SparklesIcon,
   Menu as MenuIcon,
   RailSymbol
 } from 'lucide-vue-next';
@@ -112,6 +113,7 @@ const navItems = [
   { to: '/metrics', label: 'Business Metrics', icon: LineChart },
   { to: '/chat-playground', label: 'Chat Playground', icon: MessageSquare },
   { to: '/rag-playground', label: 'RAG Playground', icon: Sparkles },
+  { to: '/chat-experience', label: 'Chat Experience', icon: SparklesIcon },
   { to: '/ai-control', label: 'AI Control', icon: Bot }
 ] as const;
 

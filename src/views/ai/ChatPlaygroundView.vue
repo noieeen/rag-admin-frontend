@@ -169,7 +169,7 @@
         </CardContent>
       </Card>
 
-      <Card class="flex h-full min-h-[24rem] flex-col">
+      <Card class="flex h-full max-h-[1000px] min-h-[24rem] flex-col">
         <CardHeader class="space-y-1">
           <CardTitle>Event Console</CardTitle>
           <CardDescription>Inspect streaming events, tool calls, metadata, and trace timing.</CardDescription>
@@ -206,7 +206,7 @@
                   <span>{{ formatTimestamp(entry.timestamp) }}</span>
                 </div>
                 <p v-if="entry.message" class="font-mono text-xs text-muted-foreground">{{ entry.message }}</p>
-                <pre v-if="entry.payload" class="max-h-52 overflow-auto rounded-md bg-muted/60 p-3 text-xs leading-relaxed text-foreground">
+                <pre v-if="entry.payload" class="max-h-52 max-w-[400px] overflow-auto rounded-md bg-muted/60 p-3 text-xs leading-relaxed text-foreground">
 {{ entry.payload }}
                 </pre>
               </li>

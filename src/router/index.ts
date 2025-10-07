@@ -68,6 +68,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Chat Playground' }
   },
   {
+    path: '/chat-experience',
+    name: 'chat-experience',
+    component: () => import('@/views/ai/ChatExperienceView.vue'),
+    meta: { title: 'Chat Experience' }
+  },
+  {
     path: '/ai-control',
     name: 'ai-control',
     component: () => import('@/views/ai/AiControlView.vue'),

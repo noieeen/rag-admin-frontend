@@ -139,6 +139,7 @@ const tabs = [
   { label: 'Templates', to: '/templates' },
   { label: 'Sql Patterns', to: '/sql-patterns' },
   { label: 'Chat Playground', to: '/chat-playground' },
+  { label: 'Chat Experience', to: '/chat-experience' },
   { label: 'RAG Playground', to: '/rag-playground' },
   { label: 'Synonyms', to: '/synonyms' },
   { label: 'AI Control', to: '/ai-control' }

@@ -40,7 +40,7 @@ This document captures the assumptions the frontend `ChatPlaygroundView` makes a
 
 ### Supported Event Types
 
-| Event        | Payload schema (examples)                                                                                   | Frontend usage                                    |
+| Event        | Payload schema (examples)                                                                                    | Frontend usage                                     |
 |--------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
 | `status`     | `{ "executionId": "uuid", "state": "started\|completed\|failed" }`                                           | Updates status indicator                           |
 | `message`    | `{ "delta": "string" }` or `{ "content": { "text": "..." } }`                                                | Appends streamed text to the assistant bubble      |
@@ -52,6 +52,40 @@ This document captures the assumptions the frontend `ChatPlaygroundView` makes a
 | `error`      | `{ "message": "detail" }`                                                                                    | Shows inline error in assistant bubble             |
 
 The response should remain open until the `final` (or `error`) event is sent, after which the connection can close.
+
+### Markdown formatted responses
+
+To support richer rendering (headers, lists, tables, inline callouts) the backend can return Markdown payloads without breaking existing clients.
+
+- For incremental chunks emit:
+
+  ```jsonc
+  {
+    "delta": {
+      "format": "markdown",
+      "text": "Partial **markdown** content..."
+    }
+  }
+  ```
+
+  When the delta is a string, consumers assume plain text. When an object is returned, clients should inspect the `format` field; unknown formats are ignored.
+
+- `final` events should include the consolidated Markdown response:
+
+  ```jsonc
+  {
+    "type": "text",
+    "format": "markdown",
+    "content": {
+      "message": "# Heading\n\nFull assistant answer in markdown…"
+    },
+    "tokenBreakdown": { "promptTokens": 800, "completionTokens": 250 }
+  }
+  ```
+
+- Tool and metadata events remain unchanged; they can optionally carry Markdown snippets using the same `{ format, text }` shape.
+
+- Older clients that do not check `format` will continue to display the raw markdown (which is acceptable for the admin playground). New UIs may render it using a Markdown engine (e.g. `markdown-it`, `@tanstack/vue-markdown`, `marked`, etc.).
 
 ### Example Stream (mixed format)
 
@@ -66,4 +100,3 @@ status{"executionId":"abc","state":"completed"}
 ```
 
 The frontend tolerates either newline-delimited JSON or regulation SSE frames and gracefully ignores blank/heartbeat lines.
-

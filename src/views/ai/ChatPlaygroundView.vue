@@ -232,6 +232,8 @@ import { streamChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';
 import type { AgentStreamEventType } from '@/types/api';
 
+const STREAM_APPEND_INTERVAL_MS = 40;
+
 interface ChatMessageRecord {
   id: string;
   role: 'user' | 'assistant';
@@ -289,6 +291,9 @@ const toolRuns = ref<ToolRunRecord[]>([]);
 const consoleEntries = ref<ConsoleEntry[]>([]);
 const autoScrollConsole = ref(true);
 const tokens = reactive<{ usage?: string }>({});
+
+const pendingAssistantBuffer = ref('');
+let appendThrottleTimer: ReturnType<typeof setTimeout> | null = null;
 
 const chatScrollRef = ref<HTMLElement | null>(null);
 const consoleScrollRef = ref<HTMLElement | null>(null);
@@ -451,6 +456,39 @@ function updateAssistantMessage(update: { append?: string | null; finalize?: str
   messages.value.splice(index, 1, draft);
 }
 
+function queueAssistantAppend(text: string) {
+  if (!text) return;
+  pendingAssistantBuffer.value += text;
+  if (appendThrottleTimer !== null) return;
+
+  appendThrottleTimer = setTimeout(() => {
+    flushAssistantBuffer();
+  }, STREAM_APPEND_INTERVAL_MS);
+}
+
+function clearAppendTimer() {
+  if (appendThrottleTimer !== null) {
+    clearTimeout(appendThrottleTimer);
+    appendThrottleTimer = null;
+  }
+}
+
+function flushAssistantBuffer() {
+  if (!pendingAssistantBuffer.value) {
+    clearAppendTimer();
+    return;
+  }
+
+  updateAssistantMessage({ append: pendingAssistantBuffer.value });
+  pendingAssistantBuffer.value = '';
+  clearAppendTimer();
+}
+
+function resetAssistantBuffer() {
+  pendingAssistantBuffer.value = '';
+  clearAppendTimer();
+}
+
 function extractText(payload: unknown): string | null {
   if (typeof payload === 'string') {
     return payload;
@@ -543,6 +581,7 @@ async function startChat() {
   streamStatus.value = 'connecting';
   isStreaming.value = true;
   consoleEntries.value = [];
+  resetAssistantBuffer();
 
   const abortController = new AbortController();
   controllerRef.value = abortController;
@@ -577,6 +616,8 @@ async function startChat() {
       updateAssistantMessage({ finalize: `⚠️ ${message}` });
     }
   } finally {
+    flushAssistantBuffer();
+    resetAssistantBuffer();
     isStreaming.value = false;
     pendingAssistantId.value = null;
     controllerRef.value = null;
@@ -688,12 +729,13 @@ function processEvent(eventName: string, payloadString: string) {
     case 'message': {
       const text = extractText(parsedPayload);
       if (text) {
-        updateAssistantMessage({ append: text });
+        queueAssistantAppend(text);
       }
       break;
     }
     case 'final':
       {
+        flushAssistantBuffer();
         const text = extractText(parsedPayload);
         if (text) {
           updateAssistantMessage({ finalize: text });
@@ -732,6 +774,7 @@ function processEvent(eventName: string, payloadString: string) {
       break;
     case 'error':
       {
+        flushAssistantBuffer();
         const errorText = extractText(parsedPayload) ?? 'Unknown error';
         updateAssistantMessage({ finalize: `⚠️ ${errorText}` });
         streamStatus.value = 'failed';
@@ -741,7 +784,7 @@ function processEvent(eventName: string, payloadString: string) {
       {
         const text = extractText(parsedPayload);
         if (text) {
-          updateAssistantMessage({ append: text });
+          queueAssistantAppend(text);
         }
       }
       break;
@@ -750,6 +793,8 @@ function processEvent(eventName: string, payloadString: string) {
 
 function stopStream() {
   controllerRef.value?.abort();
+  flushAssistantBuffer();
+  resetAssistantBuffer();
   if (pendingAssistantId.value) {
     const index = messages.value.findIndex((item) => item.id === pendingAssistantId.value);
     if (index !== -1) {
@@ -771,6 +816,7 @@ function clearConversation() {
   thinkingTraces.value = [];
   tokens.usage = undefined;
   streamStatus.value = 'idle';
+  resetAssistantBuffer();
 }
 
 const streamStatusLabel = computed(() => {

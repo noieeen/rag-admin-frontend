@@ -16,15 +16,18 @@ defineOptions({ inheritAttrs: false });
 const markdown = new MarkdownIt({
   html: false,
   linkify: true,
-  breaks: true,
-  highlight(code, lang) {
+  breaks: true
+});
+
+markdown.set({
+  highlight(code: string, lang: string): string {
     const language = (lang ?? '').trim().toLowerCase() || 'text';
     const label = language === 'text' ? 'CODE' : language.toUpperCase();
     const escaped = markdown.utils.escapeHtml(code);
     const encoded = encodeURIComponent(code);
 
     return `
-      <div class="code-block overflow-hidden rounded-2xl border border-border bg-muted/40 ">
+      <div class="code-block overflow-hidden rounded-2xl border border-border bg-muted/40">
         <div class="flex items-center justify-between border-b border-border bg-muted/60 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground">
           <span>${label}</span>
           <button

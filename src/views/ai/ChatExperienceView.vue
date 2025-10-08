@@ -47,7 +47,7 @@
       </header>
 
       <main ref="chatScrollRef" class="flex-1 space-y-6 overflow-y-auto px-6 py-8">
-        <div v-for="message in messages" :key="message.id" class="flex flex-col gap-3">
+        <div v-for="message in messages" :key="message.id" class="flex flex-col gap-2">
           <div
             :class="[
               'max-w-3xl rounded-3xl px-5 py-4 text-sm leading-relaxed',
@@ -58,7 +58,6 @@
           >
             <div class="flex items-center gap-2 text-xs">
               <span class="font-medium uppercase tracking-wide">{{ message.role === 'assistant' ? 'Agent' : 'You' }}</span>
-              <span class="text-muted-foreground">· {{ formatTimestamp(message.createdAt) }}</span>
             </div>
             <div class="mt-2 leading-relaxed">
               <template v-if="message.role === 'assistant'">
@@ -74,6 +73,16 @@
                 <span class="whitespace-pre-wrap">{{ message.content }}</span>
               </template>
             </div>
+          </div>
+
+          <div
+            class="flex flex-wrap items-center gap-2 text-[0.65rem] uppercase tracking-wide text-muted-foreground"
+            :class="message.role === 'assistant' ? 'self-start pl-1' : 'self-end pr-1'
+            "
+          >
+            <span>Sent {{ formatTimestamp(message.createdAt) }}</span>
+            <span v-if="message.durationMs !== undefined">· {{ formatDuration(message.durationMs) }}</span>
+            <span v-if="message.endedAt && message.durationMs !== undefined" class="hidden sm:inline">· Finished {{ formatTimestamp(message.endedAt) }}</span>
           </div>
 
           <div
@@ -176,6 +185,8 @@ interface ChatMessageRecord {
   role: 'user' | 'assistant';
   content: string;
   createdAt: string;
+  endedAt?: string;
+  durationMs?: number;
   status: 'idle' | 'streaming' | 'completed' | 'failed';
   tools: ToolRun[];
   format?: 'text' | 'markdown';
@@ -264,6 +275,19 @@ function formatTimestamp(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDuration(ms?: number) {
+  if (ms === undefined || !Number.isFinite(ms)) return '';
+  if (ms < 1000) {
+    return `${Math.round(ms)} ms`;
+  }
+  const seconds = ms / 1000;
+  if (seconds < 60) {
+    return `${seconds.toFixed(seconds < 10 ? 1 : 0)} s`;
+  }
+  const minutes = seconds / 60;
+  return `${minutes.toFixed(minutes < 10 ? 1 : 0)} min`;
 }
 
 function resetBuffer() {
@@ -368,11 +392,14 @@ function stringifyMaybeJson(value: unknown) {
   return value === undefined || value === null ? undefined : String(value);
 }
 
-function updateAssistantStatus(status: ChatMessageRecord['status']) {
+function updateAssistantStatus(
+  status: ChatMessageRecord['status'],
+  updates: Partial<ChatMessageRecord> = {}
+) {
   const context = ensureAssistantMessage();
   if (!context) return;
   const { idx, record } = context;
-  messages.value.splice(idx, 1, { ...record, status });
+  messages.value.splice(idx, 1, { ...record, status, ...updates });
 }
 
 async function send() {
@@ -430,19 +457,23 @@ async function send() {
     if ((error as Error).name === 'AbortError') {
       streamStatus.value = 'stopped';
     } else {
-      streamStatus.value = 'failed';
-      updateAssistantStatus('failed');
-      const context = ensureAssistantMessage();
-      if (context) {
-        const { idx, record } = context;
-        messages.value.splice(idx, 1, {
-          ...record,
-          content: `⚠️ ${(error as Error).message ?? 'Something went wrong'}`,
-          status: 'failed'
-        });
-      }
+    streamStatus.value = 'failed';
+    const context = ensureAssistantMessage();
+    const finishedAt = new Date().toISOString();
+    const durationMs = context ? Math.max(0, Date.now() - new Date(context.record.createdAt).getTime()) : undefined;
+    updateAssistantStatus('failed', { endedAt: finishedAt, durationMs });
+    if (context) {
+      const { idx, record } = context;
+      messages.value.splice(idx, 1, {
+        ...record,
+        content: `⚠️ ${(error as Error).message ?? 'Something went wrong'}`,
+        status: 'failed',
+        endedAt: finishedAt,
+        durationMs
+      });
     }
-  } finally {
+  }
+} finally {
     flushBuffer();
     resetBuffer();
     controllerRef.value = null;
@@ -546,13 +577,44 @@ function processEvent(eventType: string, payloadText: string) {
       const { text, format } = extractContent(payload);
       flushBuffer();
       const context = ensureAssistantMessage();
+      const finishedAt = new Date().toISOString();
+      let durationMs: number | undefined = context
+        ? Math.max(0, Date.now() - new Date(context.record.createdAt).getTime())
+        : undefined;
+      if (
+        payload &&
+        typeof payload === 'object' &&
+        'metadata' in payload &&
+        payload.metadata &&
+        typeof payload.metadata === 'object'
+      ) {
+        const meta = payload.metadata as Record<string, unknown>;
+        const execution = meta.executionTime ?? meta.durationMs ?? meta.latencyMs;
+        if (typeof execution === 'number') {
+          durationMs = execution;
+        } else if (typeof execution === 'string') {
+          const parsed = Number(execution);
+          if (!Number.isNaN(parsed)) durationMs = parsed;
+        }
+      }
       if (context && text) {
         const { idx, record } = context;
         messages.value.splice(idx, 1, {
           ...record,
           content: text,
           status: 'completed',
-          format: format ?? record.format
+          format: format ?? record.format,
+          endedAt: finishedAt,
+          durationMs: durationMs ?? record.durationMs
+        });
+      } else if (context) {
+        const { idx, record } = context;
+        messages.value.splice(idx, 1, {
+          ...record,
+          status: 'completed',
+          format: format ?? record.format,
+          endedAt: finishedAt,
+          durationMs: durationMs ?? record.durationMs
         });
       }
       if (
@@ -576,14 +638,23 @@ function processEvent(eventType: string, payloadText: string) {
       const { text } = extractContent(payload);
       const message = text ?? 'Unknown error';
       const context = ensureAssistantMessage();
+      const finishedAt = new Date().toISOString();
+      const durationMs = context
+        ? Math.max(0, Date.now() - new Date(context.record.createdAt).getTime())
+        : undefined;
       if (context) {
         const { idx, record } = context;
         messages.value.splice(idx, 1, {
           ...record,
           content: `⚠️ ${message}`,
           status: 'failed',
-          format: 'text'
+          format: 'text',
+          endedAt: finishedAt,
+          durationMs
         });
+      }
+      else {
+        updateAssistantStatus('failed', { endedAt: finishedAt, durationMs });
       }
       streamStatus.value = 'failed';
       break;
@@ -704,7 +775,12 @@ function stopStream() {
   flushBuffer();
   resetBuffer();
   streamStatus.value = 'stopped';
-  updateAssistantStatus('failed');
+  const context = ensureAssistantMessage();
+  const finishedAt = new Date().toISOString();
+  const durationMs = context
+    ? Math.max(0, Date.now() - new Date(context.record.createdAt).getTime())
+    : undefined;
+  updateAssistantStatus('failed', { endedAt: finishedAt, durationMs });
 }
 
 function restartConversation() {

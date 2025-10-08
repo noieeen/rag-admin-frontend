@@ -46,14 +46,16 @@
         </div>
       </header>
 
-      <main ref="chatScrollRef" class="flex-1 space-y-6 overflow-y-auto px-6 py-8">
-        <div v-for="message in messages" :key="message.id" class="flex flex-col gap-2">
+      <main ref="chatScrollRef" class="flex-1 overflow-y-auto px-6 py-8">
+        <TransitionGroup name="chat-fade" tag="div" class="flex flex-col gap-6">
+          <div v-for="message in messages" :key="message.id" class="flex flex-col gap-2">
           <div
             :class="[
-              'max-w-3xl rounded-3xl px-5 py-4 text-sm leading-relaxed',
+              'relative max-w-3xl rounded-3xl px-5 py-4 text-sm leading-relaxed',
               message.role === 'assistant'
                 ? 'self-start rounded-tl-none border border-border bg-muted/40 text-foreground shadow-sm'
                 : 'self-end rounded-tr-none bg-primary text-primary-foreground shadow'
+            , message.role === 'assistant' && message.status === 'streaming' ? 'animate-message-stream' : ''
             ]"
           >
             <div class="flex items-center gap-2 text-xs">
@@ -113,6 +115,7 @@
             </details>
           </div>
         </div>
+        </TransitionGroup>
 
         <div v-if="isStreaming && !messages.some((m) => m.status === 'streaming' && m.role === 'assistant')" class="flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs text-muted-foreground">
           <Loader2 class="h-3.5 w-3.5 animate-spin text-primary" />
@@ -817,3 +820,47 @@ onBeforeUnmount(() => {
   stopStream();
 });
 </script>
+
+<style scoped>
+.chat-fade-enter-active,
+.chat-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.chat-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.chat-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.animate-message-stream {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-message-stream::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.25) 40%, transparent 80%);
+  opacity: 0.7;
+  animation: shimmer 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+</style>

@@ -112,7 +112,7 @@
       </main>
 
       <footer class="border-t border-border px-6 py-4">
-        <form class="flex flex-col gap-3" @submit.prevent="send">
+        <form class="flex flex-col gap-3" @submit.prevent="send" @keydown.enter="send">
           <textarea
             v-model="input"
             rows="3"
@@ -181,7 +181,7 @@ interface ChatMessageRecord {
   format?: 'text' | 'markdown';
 }
 
-const STREAM_APPEND_INTERVAL_MS = 40;
+const STREAM_APPEND_INTERVAL_MS = 16;
 
 const mockSessions = [
   {

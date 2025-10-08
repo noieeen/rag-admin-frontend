@@ -54,8 +54,10 @@
               'relative max-w-3xl rounded-3xl px-5 py-4 text-sm leading-relaxed',
               message.role === 'assistant'
                 ? 'self-start rounded-tl-none border border-border bg-muted/40 text-foreground shadow-sm'
-                : 'self-end rounded-tr-none bg-primary text-primary-foreground shadow'
-            , message.role === 'assistant' && message.status === 'streaming' ? 'animate-message-stream' : ''
+                : 'self-end rounded-tr-none bg-primary text-primary-foreground shadow',
+              message.role === 'assistant' && message.status === 'streaming' && !message.content
+                ? ''
+                : ''
             ]"
           >
             <div class="flex items-center gap-2 text-xs">
@@ -63,16 +65,20 @@
             </div>
             <div class="mt-2 leading-relaxed">
               <template v-if="message.role === 'assistant'">
-                <MarkdownRenderer
-                  v-if="message.format === 'markdown'"
-                  :source="message.content || ''"
-                />
-                <span v-else-if="message.content" class="whitespace-pre-wrap">{{ message.content }}</span>
-                <span v-else class="text-muted-foreground">Thinking…</span>
-                <Loader2 v-if="message.status === 'streaming'" class="ml-2 inline h-4 w-4 animate-spin text-muted-foreground" />
+                <div v-if="message.format === 'markdown' && message.content" class="markdown-stream-wrapper">
+                  <MarkdownRenderer :source="message.content" />
+                  <span v-if="message.status === 'streaming'" class="typing-dot-inline typing-dot-inline--markdown">•</span>
+                </div>
+                <span v-else-if="message.content" class="whitespace-pre-wrap">
+                  {{ message.content }}
+                  <span v-if="message.status === 'streaming'" class="typing-dot-inline">•</span>
+                </span>
+                <span v-else class="thinking-placeholder highlight-text">
+                  Thinking
+                </span>
               </template>
               <template v-else>
-                <span class="whitespace-pre-wrap">{{ message.content }}</span>
+                <span class="whitespace-pre-wrap">{{ message.content }}<span v-if="message.status === 'streaming'" class="thinking-dot">•</span></span>
               </template>
             </div>
           </div>
@@ -837,30 +843,102 @@ onBeforeUnmount(() => {
   transform: translateY(-6px);
 }
 
-.animate-message-stream {
-  position: relative;
-  overflow: hidden;
-}
-
-.animate-message-stream::after {
+.animate-message-thinking::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.25) 40%, transparent 80%);
-  opacity: 0.7;
-  animation: shimmer 1.4s ease-in-out infinite;
+  background-image: linear-gradient(110deg, transparent 0%, rgba(15, 23, 42, 0.18) 45%, rgba(15, 23, 42, 0.28) 65%, transparent 100%);
+  opacity: 0.8;
+  mix-blend-mode: multiply;
+  animation: shadow-run 1.8s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes shimmer {
+@keyframes shadow-run {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(-80%);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.35;
   }
   50% {
     transform: translateX(0%);
+    opacity: 0.55;
   }
   100% {
-    transform: translateX(100%);
+    transform: translateX(90%);
+    opacity: 0;
   }
 }
+
+.markdown-stream-wrapper {
+  position: relative;
+}
+
+.typing-dot-inline--markdown {
+  position: absolute;
+  right: 0.4rem;
+  bottom: -0.2rem;
+}
+
+.typing-dot-inline,
+.thinking-dot {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 3em;
+  line-height: 1;
+  animation: typing-dot-single 1s ease-in-out infinite;
+}
+
+.thinking-placeholder {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: 0.02em;
+}
+
+.thinking-dot {
+  margin-left: 0.45rem;
+  animation-delay: 0.25s;
+}
+
+@keyframes typing-dot-single {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-1.5px);
+    opacity: 0.95;
+  }
+}
+
+.highlight-text {
+  /* Make the text transparent so the background gradient shows through */
+  color: transparent;
+  /* Clip the background to the text shape */
+  background-clip: text;
+  -webkit-background-clip: text; /* For Safari compatibility */
+
+  /* Define the background gradient */
+  background-image: linear-gradient(to right, gray 0%, white 50%, gray 100%);
+  /* Set the initial size of the background */
+  background-size: 200% auto; /* Make it wider than the text to allow movement */
+
+  /* Apply the animation */
+  animation: highlight-animation 3s linear infinite alternate;
+}
+
+@keyframes highlight-animation {
+  0% {
+    background-position: 0% 50%; /* Start the highlight on the left */
+  }
+  100% {
+    background-position: 100% 50%; /* Move the highlight to the right */
+  }
+}
+
 </style>

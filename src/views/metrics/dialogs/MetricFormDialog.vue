@@ -1,157 +1,155 @@
 <template>
-  <teleport to="body">
-    <transition name="fade">
-      <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-3xl rounded-lg border border-border bg-background p-6 shadow-lg">
-          <header class="mb-4">
-            <h2 class="text-lg font-semibold">{{ isEdit ? 'Edit Business Metric' : 'New Business Metric' }}</h2>
-            <p class="text-sm text-muted-foreground">
-              Capture core metadata, calculation logic, and relationships for the business metric.
-            </p>
-          </header>
+  <Dialog>
+    <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div class="w-full max-w-3xl rounded-lg border border-border bg-background p-6 shadow-lg">
+        <header class="mb-4">
+          <h2 class="text-lg font-semibold">{{ isEdit ? 'Edit Business Metric' : 'New Business Metric' }}</h2>
+          <p class="text-sm text-muted-foreground">
+            Capture core metadata, calculation logic, and relationships for the business metric.
+          </p>
+        </header>
 
-          <form class="grid gap-4" @submit.prevent="submit">
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Metric Name (EN)</span>
-                <input v-model="form.metric_name_en" required class="rounded-md border border-border px-3 py-2" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Metric Name (TH)</span>
-                <input v-model="form.metric_name_th" class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+        <form class="grid gap-4" @submit.prevent="submit">
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Metric Name (EN)</span>
+              <input v-model="form.metric_name_en" required class="rounded-md border border-border px-3 py-2" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Metric Name (TH)</span>
+              <input v-model="form.metric_name_th" class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Short Name</span>
-                <input v-model="form.short_name" required class="rounded-md border border-border px-3 py-2" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Business Domain</span>
-                <input v-model="form.business_domain" required class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Short Name</span>
+              <input v-model="form.short_name" required class="rounded-md border border-border px-3 py-2" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Business Domain</span>
+              <input v-model="form.business_domain" required class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Database ID</span>
-                <input
+          <div class="grid gap-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Database ID</span>
+              <input
                   v-model="form.database_id"
                   placeholder="Associated database UUID"
                   class="rounded-md border border-border px-3 py-2"
-                />
-              </label>
-            </div>
+              />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Description (EN)</span>
-                <textarea v-model="form.description_en" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Description (TH)</span>
-                <textarea v-model="form.description_th" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Description (EN)</span>
+              <textarea v-model="form.description_en" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Description (TH)</span>
+              <textarea v-model="form.description_th" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Calculation Logic</span>
-                <textarea v-model="form.calculation_logic" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>SQL Expression</span>
-                <textarea v-model="form.sql_expression" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Calculation Logic</span>
+              <textarea v-model="form.calculation_logic" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>SQL Expression</span>
+              <textarea v-model="form.sql_expression" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Aggregation Type</span>
-                <input v-model="form.aggregation_type" class="rounded-md border border-border px-3 py-2" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Unit of Measure</span>
-                <input v-model="form.unit_of_measure" class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Aggregation Type</span>
+              <input v-model="form.aggregation_type" class="rounded-md border border-border px-3 py-2" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Unit of Measure</span>
+              <input v-model="form.unit_of_measure" class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Grain</span>
-                <input v-model="form.grain" class="rounded-md border border-border px-3 py-2" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Business Owner</span>
-                <input v-model="form.business_owner" class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Grain</span>
+              <input v-model="form.grain" class="rounded-md border border-border px-3 py-2" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Business Owner</span>
+              <input v-model="form.business_owner" class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Refresh Schedule</span>
-                <select v-model="form.refresh_schedule" class="rounded-md border border-border px-3 py-2">
-                  <option value="daily">Daily</option>
-                  <option value="hourly">Hourly</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Usage Frequency</span>
-                <input v-model.number="form.usage_frequency" type="number" min="0" class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Refresh Schedule</span>
+              <select v-model="form.refresh_schedule" class="rounded-md border border-border px-3 py-2">
+                <option value="daily">Daily</option>
+                <option value="hourly">Hourly</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Usage Frequency</span>
+              <input v-model.number="form.usage_frequency" type="number" min="0" class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Relevant Table IDs</span>
-                <input v-model="form.relevant_table_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Relevant Column IDs</span>
-                <input v-model="form.relevant_column_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Relevant Table IDs</span>
+              <input v-model="form.relevant_table_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Relevant Column IDs</span>
+              <input v-model="form.relevant_column_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2 md:grid-cols-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Related Metric IDs</span>
-                <input v-model="form.related_metrics" placeholder="Comma separated IDs" class="rounded-md border border-border px-3 py-2" />
-              </label>
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Tags</span>
-                <input v-model="form.tags" placeholder="Comma separated tags" class="rounded-md border border-border px-3 py-2" />
-              </label>
-            </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Related Metric IDs</span>
+              <input v-model="form.related_metrics" placeholder="Comma separated IDs" class="rounded-md border border-border px-3 py-2" />
+            </label>
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Tags</span>
+              <input v-model="form.tags" placeholder="Comma separated tags" class="rounded-md border border-border px-3 py-2" />
+            </label>
+          </div>
 
-            <div class="grid gap-2">
-              <label class="flex flex-col gap-1 text-sm font-medium">
-                <span>Common Filters</span>
-                <textarea v-model="form.common_filters" rows="2" placeholder="Comma separated filters" class="rounded-md border border-border px-3 py-2 text-sm" />
-              </label>
-            </div>
+          <div class="grid gap-2">
+            <label class="flex flex-col gap-1 text-sm font-medium">
+              <span>Common Filters</span>
+              <textarea v-model="form.common_filters" rows="2" placeholder="Comma separated filters" class="rounded-md border border-border px-3 py-2 text-sm" />
+            </label>
+          </div>
 
-            <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
+          <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
 
-            <div class="flex justify-end gap-2">
-              <button type="button" class="rounded-md border border-border px-3 py-2 text-sm" @click="emit('update:open', false)">
-                Cancel
-              </button>
-              <button
+          <div class="flex justify-end gap-2">
+            <button type="button" class="rounded-md border border-border px-3 py-2 text-sm" @click="emit('update:open', false)">
+              Cancel
+            </button>
+            <button
                 class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 :disabled="isSubmitting"
-              >
-                {{ isSubmitting ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Metric' }}
-              </button>
-            </div>
-          </form>
-        </div>
+            >
+              {{ isSubmitting ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Metric' }}
+            </button>
+          </div>
+        </form>
       </div>
-    </transition>
-  </teleport>
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -161,7 +159,15 @@ import { storeToRefs } from 'pinia';
 import { createBusinessMetric, updateBusinessMetric } from '@/api/metadata';
 import type { BusinessMetricMetadata } from '@/types/metadata';
 import { useTenantStore } from '@/stores/tenant';
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 interface Props {
   open: boolean;
   metric?: BusinessMetricMetadata | null;

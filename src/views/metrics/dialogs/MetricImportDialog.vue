@@ -1,177 +1,174 @@
 <template>
-  <Dialog>
-    <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div class="flex max-h-[90vh] w-full max-w-5xl flex-col rounded-lg border border-border bg-background shadow-lg">
-        <header class="border-b border-border px-6 py-4">
-          <h2 class="text-lg font-semibold">Import Business Metrics</h2>
-          <p class="text-sm text-muted-foreground">
-            Paste JSON for one or more business metrics. Review and edit before committing the import.
-          </p>
-        </header>
-
-        <div class="flex flex-1 flex-col overflow-hidden">
-          <div class="grid flex-1 gap-4 overflow-hidden p-6 lg:grid-cols-[1.1fr,1.3fr]">
-            <section class="flex flex-col gap-4 overflow-hidden">
-              <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">JSON Input</h3>
-                <div class="flex items-center gap-2 text-sm">
-                  <button class="rounded-md border border-border px-3 py-1.5" @click="loadSample">Load Sample</button>
-                  <button class="rounded-md border border-border px-3 py-1.5" @click="clearInput">Clear</button>
-                </div>
+  <Dialog :open="open" @update:open="emit('update:open', false)">
+    <DialogContent class="sm:max-w-[1000px]">
+      <DialogHeader>
+        <DialogTitle>Import Business Metrics</DialogTitle>
+        <DialogDescription>
+          Paste JSON for one or more business metrics. Review and edit before committing the import.
+        </DialogDescription>
+      </DialogHeader>
+      <div class="flex flex-1 flex-col overflow-hidden">
+        <div class="grid flex-1 gap-4 overflow-hidden p-6 lg:grid-cols-[1.1fr,1.3fr]">
+          <section class="flex flex-col gap-4 overflow-hidden">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">JSON Input</h3>
+              <div class="flex items-center gap-2 text-sm">
+                <button class="rounded-md border border-border px-3 py-1.5" @click="loadSample">Load Sample</button>
+                <button class="rounded-md border border-border px-3 py-1.5" @click="clearInput">Clear</button>
               </div>
-              <textarea
-                  v-model="rawInput"
-                  rows="12"
-                  class="flex-1 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs"
-                  placeholder="Paste JSON array of business metrics here"
-              />
-              <div class="flex items-center justify-between text-sm">
-                <p v-if="parseError" class="text-destructive">{{ parseError }}</p>
-                <div class="flex items-center gap-2">
-                  <label class="flex items-center gap-2 text-xs text-muted-foreground">
-                    <input type="checkbox" v-model="replaceOnImport" />
-                    Update existing metrics when IDs match
-                  </label>
-                  <button
-                      class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-                      @click="parseJson"
-                  >
-                    Parse JSON
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            <section class="flex flex-col overflow-hidden">
-              <div class="mb-3 flex items-center justify-between">
-                <h3 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  Preview ({{ drafts.length }} records)
-                </h3>
+            </div>
+            <textarea
+                v-model="rawInput"
+                rows="12"
+                class="flex-1 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs"
+                placeholder="Paste JSON array of business metrics here"
+            />
+            <div class="flex items-center justify-between text-sm">
+              <p v-if="parseError" class="text-destructive">{{ parseError }}</p>
+              <div class="flex items-center gap-2">
+                <label class="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" v-model="replaceOnImport" />
+                  Update existing metrics when IDs match
+                </label>
                 <button
-                    class="rounded-md border border-border px-3 py-1.5 text-sm"
-                    :disabled="drafts.length === 0"
-                    @click="removeAll"
+                    class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                    @click="parseJson"
                 >
-                  Remove All
+                  Parse JSON
                 </button>
               </div>
-              <div class="flex-1 overflow-y-auto rounded-lg border border-border">
-                <ul v-if="drafts.length" class="divide-y divide-border text-sm">
-                  <li v-for="draft in drafts" :key="draft.internalId" class="space-y-3 p-4">
-                    <div class="flex items-start justify-between gap-3">
-                      <div>
-                        <h4 class="text-base font-semibold text-foreground">
-                          {{ draft.metric.metric_name_en || draft.metric.short_name || 'Untitled Metric' }}
-                        </h4>
-                        <p class="text-xs text-muted-foreground">
-                          {{ draft.metric.business_domain || '—' }} · {{ draft.metric.refresh_schedule || '—' }}
-                        </p>
-                      </div>
-                      <div class="flex items-center gap-2 text-xs">
+            </div>
+          </section>
+
+          <section class="flex flex-col overflow-hidden">
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                Preview ({{ drafts.length }} records)
+              </h3>
+              <button
+                  class="rounded-md border border-border px-3 py-1.5 text-sm"
+                  :disabled="drafts.length === 0"
+                  @click="removeAll"
+              >
+                Remove All
+              </button>
+            </div>
+            <div class="flex-1 overflow-y-auto rounded-lg border border-border">
+              <ul v-if="drafts.length" class="divide-y divide-border text-sm">
+                <li v-for="draft in drafts" :key="draft.internalId" class="space-y-3 p-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 class="text-base font-semibold text-foreground">
+                        {{ draft.metric.metric_name_en || draft.metric.short_name || 'Untitled Metric' }}
+                      </h4>
+                      <p class="text-xs text-muted-foreground">
+                        {{ draft.metric.business_domain || '—' }} · {{ draft.metric.refresh_schedule || '—' }}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs">
                           <span
                               v-if="draft.status === 'success'"
                               class="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700"
                           >
                             Imported
                           </span>
-                        <span
-                            v-else-if="draft.status === 'error'"
-                            class="rounded-full bg-destructive/10 px-2 py-0.5 font-medium text-destructive"
-                        >
+                      <span
+                          v-else-if="draft.status === 'error'"
+                          class="rounded-full bg-destructive/10 px-2 py-0.5 font-medium text-destructive"
+                      >
                             Failed
                           </span>
-                        <button
-                            class="rounded-md border border-border px-2 py-1"
-                            @click="toggleExpand(draft.internalId)"
-                        >
-                          {{ expanded.has(draft.internalId) ? 'Collapse' : 'Inspect' }}
-                        </button>
-                        <button
-                            class="rounded-md border border-border px-2 py-1 text-destructive"
-                            @click="removeDraft(draft.internalId)"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      <button
+                          class="rounded-md border border-border px-2 py-1"
+                          @click="toggleExpand(draft.internalId)"
+                      >
+                        {{ expanded.has(draft.internalId) ? 'Collapse' : 'Inspect' }}
+                      </button>
+                      <button
+                          class="rounded-md border border-border px-2 py-1 text-destructive"
+                          @click="removeDraft(draft.internalId)"
+                      >
+                        Remove
+                      </button>
                     </div>
+                  </div>
 
-                    <div v-if="expanded.has(draft.internalId)" class="grid gap-3 rounded-md border border-border p-3 text-xs">
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Metric Name (EN)</span>
-                        <input v-model="draft.metric.metric_name_en" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Metric Name (TH)</span>
-                        <input v-model="draft.metric.metric_name_th" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Short Name</span>
-                        <input v-model="draft.metric.short_name" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Business Domain</span>
-                        <input v-model="draft.metric.business_domain" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Description (EN)</span>
-                        <textarea v-model="draft.metric.description_en" rows="2" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Calculation Logic</span>
-                        <textarea v-model="draft.metric.calculation_logic" rows="2" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">SQL Expression</span>
-                        <textarea v-model="draft.metric.sql_expression" rows="2" class="rounded-md border border-border px-2 py-1.5" />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Tags</span>
-                        <input
-                            v-model="draft.tagsInput"
-                            placeholder="Comma separated"
-                            class="rounded-md border border-border px-2 py-1.5"
-                        />
-                      </label>
-                      <label class="flex flex-col gap-1">
-                        <span class="font-medium">Common Filters</span>
-                        <input
-                            v-model="draft.filtersInput"
-                            placeholder="Comma separated"
-                            class="rounded-md border border-border px-2 py-1.5"
-                        />
-                      </label>
-                    </div>
+                  <div v-if="expanded.has(draft.internalId)" class="grid gap-3 rounded-md border border-border p-3 text-xs">
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Metric Name (EN)</span>
+                      <input v-model="draft.metric.metric_name_en" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Metric Name (TH)</span>
+                      <input v-model="draft.metric.metric_name_th" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Short Name</span>
+                      <input v-model="draft.metric.short_name" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Business Domain</span>
+                      <input v-model="draft.metric.business_domain" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Description (EN)</span>
+                      <textarea v-model="draft.metric.description_en" rows="2" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Calculation Logic</span>
+                      <textarea v-model="draft.metric.calculation_logic" rows="2" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">SQL Expression</span>
+                      <textarea v-model="draft.metric.sql_expression" rows="2" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Tags</span>
+                      <input
+                          v-model="draft.tagsInput"
+                          placeholder="Comma separated"
+                          class="rounded-md border border-border px-2 py-1.5"
+                      />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Common Filters</span>
+                      <input
+                          v-model="draft.filtersInput"
+                          placeholder="Comma separated"
+                          class="rounded-md border border-border px-2 py-1.5"
+                      />
+                    </label>
+                  </div>
 
-                    <p v-if="draft.error" class="text-xs text-destructive">{{ draft.error }}</p>
-                  </li>
-                </ul>
-                <div v-else class="flex h-full items-center justify-center text-sm text-muted-foreground">
-                  Parsed metrics will appear here.
-                </div>
+                  <p v-if="draft.error" class="text-xs text-destructive">{{ draft.error }}</p>
+                </li>
+              </ul>
+              <div v-else class="flex h-full items-center justify-center text-sm text-muted-foreground">
+                Parsed metrics will appear here.
               </div>
-            </section>
-          </div>
-
-          <footer class="flex items-center justify-between border-t border-border bg-muted/40 px-6 py-4 text-sm">
-            <p class="text-muted-foreground">
-              {{ importSummary }}
-            </p>
-            <div class="flex items-center gap-2">
-              <button class="rounded-md border border-border px-4 py-2" @click="emit('update:open', false)">
-                Close
-              </button>
-              <button
-                  class="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-                  :disabled="drafts.length === 0 || isImporting"
-                  @click="runImport"
-              >
-                {{ isImporting ? `Importing ${importProgress}/${drafts.length}` : 'Import Records' }}
-              </button>
             </div>
-          </footer>
+          </section>
         </div>
+
+        <footer class="flex items-center justify-between border-t border-border bg-muted/40 px-6 py-4 text-sm">
+          <p class="text-muted-foreground">
+            {{ importSummary }}
+          </p>
+          <div class="flex items-center gap-2">
+            <button class="rounded-md border border-border px-4 py-2" @click="emit('update:open', false)">
+              Close
+            </button>
+            <button
+                class="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                :disabled="drafts.length === 0 || isImporting"
+                @click="runImport"
+            >
+              {{ isImporting ? `Importing ${importProgress}/${drafts.length}` : 'Import Records' }}
+            </button>
+          </div>
+        </footer>
       </div>
-    </div>
+    </DialogContent>
   </Dialog>
 </template>
 

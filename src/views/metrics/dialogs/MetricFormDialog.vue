@@ -1,41 +1,40 @@
 <template>
-  <Dialog>
-    <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div class="w-full max-w-3xl rounded-lg border border-border bg-background p-6 shadow-lg">
-        <header class="mb-4">
-          <h2 class="text-lg font-semibold">{{ isEdit ? 'Edit Business Metric' : 'New Business Metric' }}</h2>
-          <p class="text-sm text-muted-foreground">
-            Capture core metadata, calculation logic, and relationships for the business metric.
-          </p>
-        </header>
-
-        <form class="grid gap-4" @submit.prevent="submit">
+  <Dialog :open="open" @update:open="emit('update:open', false)">
+    <DialogContent class="sm:max-w-[90vw] grid-rows-[auto_minmax(0,1fr)_auto] max-h-[90dvh]">
+      <DialogHeader>
+        <DialogTitle>{{ isEdit ? 'Edit Business Metric' : 'New Business Metric' }}</DialogTitle>
+        <DialogDescription>
+          Capture core metadata, calculation logic, and relationships for the business metric.
+        </DialogDescription>
+      </DialogHeader>
+      <div class="grid gap-4 py-4 overflow-y-auto px-6">
+        <Form class="grid gap-4" @submit.prevent="submit">
           <div class="grid gap-2 md:grid-cols-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Metric Name (EN)</span>
-              <input v-model="form.metric_name_en" required class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.metric_name_en" required class="rounded-md border border-border px-3 py-2" />
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Metric Name (TH)</span>
-              <input v-model="form.metric_name_th" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.metric_name_th" class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
           <div class="grid gap-2 md:grid-cols-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Short Name</span>
-              <input v-model="form.short_name" required class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.short_name" required class="rounded-md border border-border px-3 py-2" />
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Business Domain</span>
-              <input v-model="form.business_domain" required class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.business_domain" required class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
           <div class="grid gap-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Database ID</span>
-              <input
+              <Input
                   v-model="form.database_id"
                   placeholder="Associated database UUID"
                   class="rounded-md border border-border px-3 py-2"
@@ -68,22 +67,22 @@
           <div class="grid gap-2 md:grid-cols-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Aggregation Type</span>
-              <input v-model="form.aggregation_type" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.aggregation_type" class="rounded-md border border-border px-3 py-2" />
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Unit of Measure</span>
-              <input v-model="form.unit_of_measure" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.unit_of_measure" class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
           <div class="grid gap-2 md:grid-cols-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Grain</span>
-              <input v-model="form.grain" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.grain" class="rounded-md border border-border px-3 py-2" />
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Business Owner</span>
-              <input v-model="form.business_owner" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.business_owner" class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
@@ -100,29 +99,29 @@
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Usage Frequency</span>
-              <input v-model.number="form.usage_frequency" type="number" min="0" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model.number="form.usage_frequency" type="number" min="0" class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
           <div class="grid gap-2 md:grid-cols-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Relevant Table IDs</span>
-              <input v-model="form.relevant_table_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.relevant_table_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Relevant Column IDs</span>
-              <input v-model="form.relevant_column_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.relevant_column_ids" placeholder="Comma separated UUIDs" class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
           <div class="grid gap-2 md:grid-cols-2">
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Related Metric IDs</span>
-              <input v-model="form.related_metrics" placeholder="Comma separated IDs" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.related_metrics" placeholder="Comma separated IDs" class="rounded-md border border-border px-3 py-2" />
             </label>
             <label class="flex flex-col gap-1 text-sm font-medium">
               <span>Tags</span>
-              <input v-model="form.tags" placeholder="Comma separated tags" class="rounded-md border border-border px-3 py-2" />
+              <Input v-model="form.tags" placeholder="Comma separated tags" class="rounded-md border border-border px-3 py-2" />
             </label>
           </div>
 
@@ -146,9 +145,10 @@
               {{ isSubmitting ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Metric' }}
             </button>
           </div>
-        </form>
+        </Form>
       </div>
-    </div>
+
+    </DialogContent>
   </Dialog>
 </template>
 
@@ -168,6 +168,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {Form, FormControl} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
 interface Props {
   open: boolean;
   metric?: BusinessMetricMetadata | null;
@@ -315,15 +317,3 @@ function buildMetricPayload() {
   } as any;
 }
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

@@ -54,8 +54,8 @@
       </Form>
 
       <DialogFooter>
-        <Button type="submit">
-          Save changes
+        <Button>
+          Footer
         </Button>
       </DialogFooter>
     </DialogContent>

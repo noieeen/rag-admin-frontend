@@ -46,7 +46,7 @@
         </div>
       </header>
 
-      <main ref="chatScrollRef" class="flex-1 overflow-y-auto px-6 py-8">
+      <main ref="chatScrollRef" class="flex-1 overflow-y-scroll px-6 py-8">
         <TransitionGroup name="chat-fade" tag="div" class="flex flex-col gap-6">
           <div v-for="message in messages" :key="message.id" class="flex flex-col gap-2">
           <div
@@ -111,11 +111,15 @@
               <div class="mt-3 space-y-2 font-mono text-[0.75rem] leading-relaxed">
                 <div v-if="tool.input">
                   <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Input</p>
-                  <pre class="rounded-lg bg-muted/60 p-3">{{ tool.input }}</pre>
+                  <div class="overflow-x-auto">
+                    <pre class="rounded-lg bg-muted/60 p-3 w-full">{{ tool.input }}</pre>
+                  </div>
                 </div>
                 <div v-if="tool.output">
                   <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Output</p>
-                  <pre class="rounded-lg bg-muted/60 p-3">{{ tool.output }}</pre>
+                  <div class="overflow-x-auto">
+                    <pre class="rounded-lg bg-muted/60 p-3 w-full">{{ tool.output }}</pre>
+                  </div>
                 </div>
               </div>
             </details>

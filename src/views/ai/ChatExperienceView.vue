@@ -131,41 +131,61 @@
 
       <footer class="border-t border-border px-6 py-4">
         <form class="flex flex-col gap-3" @submit.prevent="send" @keydown.enter="send">
-          <textarea
-            v-model="input"
-            rows="3"
-            placeholder="Ask anything about your data…"
-            class="w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm leading-relaxed shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-          <div class="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-            <div>{{ streamStatusLabel }}</div>
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                class="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted disabled:opacity-40"
-                :disabled="messages.length === 0 || isStreaming"
-                @click="restartConversation"
+          <InputGroup>
+            <InputGroupTextarea placeholder="Ask, Search or Chat..." v-model="input"/>
+            <InputGroupAddon align="block-end">
+              <InputGroupButton
+                  variant="outline"
+                  class="rounded-full"
+                  size="icon-xs"
               >
-                Clear
-              </button>
-              <button
-                v-if="isStreaming"
-                type="button"
-                class="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:opacity-90"
-                @click="stopStream"
+                <PlusIcon class="size-4" />
+              </InputGroupButton>
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <InputGroupButton variant="ghost">
+                    Auto
+                  </InputGroupButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                    side="top"
+                    align="start"
+                    class="[--radius:0.95rem]"
+                >
+                  <DropdownMenuItem>Auto</DropdownMenuItem>
+                  <DropdownMenuItem>Agent</DropdownMenuItem>
+                  <DropdownMenuItem>Manual</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <InputGroupText class="ml-auto">
+                52% used
+              </InputGroupText>
+              <Separator orientation="vertical" class="!h-4" />
+              <InputGroupButton
+                  v-if="isStreaming"
+                  variant="default"
+                  class="rounded-full"
+                  size="icon-xs"
+                  @click="stopStream"
               >
-                Stop
-              </button>
-              <button
-                v-else
-                type="submit"
-                class="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-                :disabled="!canSend"
+                <Square class="size-4" />
+                <span class="sr-only">Stop</span>
+              </InputGroupButton>
+
+              <InputGroupButton
+                  v-else
+                  type="submit"
+                  variant="default"
+                  class="rounded-full"
+                  size="icon-xs"
+                  :disabled="!canSend"
               >
-                Send
-              </button>
-            </div>
-          </div>
+                <ArrowUpIcon class="size-4" />
+                <span class="sr-only">Send</span>
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
+          <div class="text-sm">{{ streamStatusLabel }}</div>
         </form>
       </footer>
     </section>
@@ -174,12 +194,15 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
-import { Loader2 } from 'lucide-vue-next';
+import { Loader2, ArrowUpIcon, PlusIcon, Square } from 'lucide-vue-next';
 
 import { useModels } from '@/composables/useAiControls';
 import { streamChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue';
+import {InputGroup, InputGroupText, InputGroupAddon, InputGroupButton, InputGroupTextarea} from "@/components/ui/input-group";
+import {Separator} from '@/components/ui/separator'
+import {DropdownMenu ,DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
 
 interface ToolRun {
   id: string;

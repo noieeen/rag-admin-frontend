@@ -1,71 +1,75 @@
 <template>
-  <Dialog>
+  <Dialog :open="open" @update:open="emit('update:open', false)">
+    <DialogContent class="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Create Database Metadata</DialogTitle>
+        <DialogDescription>
+          Provide the information required to register a new database.
+        </DialogDescription>
+      </DialogHeader>
+      <Form class="space-y-4" @submit.prevent="submit">
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Database Name</label>
+          <Input v-model="form.database_name" required class="rounded-md border border-border px-3 py-2"/>
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Dialect</label>
+          <select v-model="form.dialect" class="rounded-md border border-border px-3 py-2">
+            <option value="SQLServer">SQL Server</option>
+            <option value="PostgreSQL">PostgreSQL</option>
+            <option value="BigQuery">BigQuery</option>
+          </select>
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Display Name (EN)</label>
+          <Input v-model="form.display_name.en" required class="rounded-md border border-border px-3 py-2"/>
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Display Name (TH)</label>
+          <Input v-model="form.display_name.th" class="rounded-md border border-border px-3 py-2"/>
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Description (EN)</label>
+          <textarea v-model="form.description.en" rows="3" class="rounded-md border border-border px-3 py-2 text-sm"/>
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Description (TH)</label>
+          <textarea v-model="form.description.th" rows="3" class="rounded-md border border-border px-3 py-2 text-sm"/>
+        </div>
 
-    <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div class="w-full max-w-lg rounded-lg border border-border bg-background p-6 shadow-lg">
-        <header class="mb-4">
-          <h2 class="text-lg font-semibold">Create Database Metadata</h2>
-          <p class="text-sm text-muted-foreground">Provide the information required to register a new database.</p>
-        </header>
+        <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
 
-        <Form class="space-y-4" @submit.prevent="submit">
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">Database Name</label>
-            <input v-model="form.database_name" required class="rounded-md border border-border px-3 py-2" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">Dialect</label>
-            <select v-model="form.dialect" class="rounded-md border border-border px-3 py-2">
-              <option value="SQLServer">SQL Server</option>
-              <option value="PostgreSQL">PostgreSQL</option>
-              <option value="BigQuery">BigQuery</option>
-            </select>
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">Display Name (EN)</label>
-            <input v-model="form.display_name.en" required class="rounded-md border border-border px-3 py-2" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">Display Name (TH)</label>
-            <input v-model="form.display_name.th" class="rounded-md border border-border px-3 py-2" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">Description (EN)</label>
-            <textarea v-model="form.description.en" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
-          </div>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">Description (TH)</label>
-            <textarea v-model="form.description.th" rows="3" class="rounded-md border border-border px-3 py-2 text-sm" />
-          </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="rounded-md border border-border px-3 py-2 text-sm"
+                  @click="emit('update:open', false)">
+            Cancel
+          </button>
+          <button
+              class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              :disabled="isSubmitting"
+          >
+            {{ isSubmitting ? 'Creating…' : 'Create' }}
+          </button>
+        </div>
+      </Form>
 
-          <p v-if="errorMessage" class="text-sm text-destructive">{{ errorMessage }}</p>
-
-          <div class="flex justify-end gap-2">
-            <button type="button" class="rounded-md border border-border px-3 py-2 text-sm" @click="emit('update:open', false)">
-              Cancel
-            </button>
-            <button
-                class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-                :disabled="isSubmitting"
-            >
-              {{ isSubmitting ? 'Creating…' : 'Create' }}
-            </button>
-          </div>
-        </Form>
-      </div>
-    </div>
-
+      <DialogFooter>
+        <Button type="submit">
+          Save changes
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
+import {reactive, ref, watch} from 'vue';
+import {storeToRefs} from 'pinia';
 
-import { createDatabase } from '@/api/metadata';
-import type { DatabaseMetadata } from '@/types/metadata';
-import { useTenantStore } from '@/stores/tenant';
-import { useDatabases } from '@/composables/useMetadataQueries';
+import {createDatabase} from '@/api/metadata';
+import type {DatabaseMetadata} from '@/types/metadata';
+import {useTenantStore} from '@/stores/tenant';
+import {useDatabases} from '@/composables/useMetadataQueries';
 import {
   Dialog,
   DialogContent,
@@ -73,7 +77,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -84,8 +87,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/toast"
+import {Input} from "@/components/ui/input"
+
 interface Props {
   open: boolean;
 }
@@ -94,30 +97,30 @@ const props = defineProps<Props>();
 const emit = defineEmits<{ 'update:open': [value: boolean] }>();
 
 const tenantStore = useTenantStore();
-const { activeTenant } = storeToRefs(tenantStore);
+const {activeTenant} = storeToRefs(tenantStore);
 const databasesQuery = useDatabases();
 
 const emptyForm: DatabaseMetadata = {
   database_id: crypto.randomUUID(),
   type: 'database',
   database_name: '',
-  display_name: { en: '', th: '' },
-  description: { en: '', th: '' },
+  display_name: {en: '', th: ''},
+  description: {en: '', th: ''},
   dialect: 'SQLServer'
 };
 
-const form = reactive({ ...emptyForm });
+const form = reactive({...emptyForm});
 const isSubmitting = ref(false);
 const errorMessage = ref('');
 
 watch(
-  () => props.open,
-  (open) => {
-    if (open) {
-      Object.assign(form, { ...emptyForm, database_id: crypto.randomUUID() });
-      errorMessage.value = '';
+    () => props.open,
+    (open) => {
+      if (open) {
+        Object.assign(form, {...emptyForm, database_id: crypto.randomUUID()});
+        errorMessage.value = '';
+      }
     }
-  }
 );
 
 async function submit() {

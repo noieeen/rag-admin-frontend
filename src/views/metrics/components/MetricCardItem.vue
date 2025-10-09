@@ -15,23 +15,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import {computed} from 'vue';
 
-import CardHeader from '@/components/ui/CardHeader.vue';
-import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
-import type { BusinessMetricMetadata } from '@/types/metadata';
+import {CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
+import type {BusinessMetricMetadata} from '@/types/metadata';
 
 const props = defineProps<{ metric: BusinessMetricMetadata }>();
 
 const metric = computed(() => props.metric);
 
 const metricTitle = computed(
-  () => metric.value.metric_name?.en ?? metric.value.metric_name?.th ?? metric.value.short_name
+    () => metric.value.metric_name?.en ?? metric.value.metric_name?.th ?? metric.value.short_name
 );
 
 const metricDescription = computed(
-  () => metric.value.description?.en ?? metric.value.description?.th ?? 'No description'
+    () => metric.value.description?.en ?? metric.value.description?.th ?? 'No description'
 );
 </script>

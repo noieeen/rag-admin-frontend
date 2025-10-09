@@ -40,11 +40,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import Card from '@/components/ui/Card.vue';
-import CardHeader from '@/components/ui/CardHeader.vue';
-import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
+import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
+
 import { useTemplates } from '@/composables/useMetadataQueries';
 
 const query = useTemplates();

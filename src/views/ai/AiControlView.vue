@@ -115,11 +115,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
-import Card from '@/components/ui/Card.vue';
-import CardHeader from '@/components/ui/CardHeader.vue';
-import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
+import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
 import { useEmbeddingJobs, useModels } from '@/composables/useAiControls';
 import { sendChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';

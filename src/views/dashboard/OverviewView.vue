@@ -92,11 +92,8 @@
 import { computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 
-import Card from '@/components/ui/Card.vue';
-import CardHeader from '@/components/ui/CardHeader.vue';
-import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
+import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
+
 import { useOverviewSummary, useDatabases } from '@/composables/useMetadataQueries';
 
 const route = useRoute();

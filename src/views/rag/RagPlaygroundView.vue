@@ -233,11 +233,8 @@ import { computed, reactive, ref, watch } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { storeToRefs } from 'pinia';
 
-import Card from '@/components/ui/Card.vue';
-import CardHeader from '@/components/ui/CardHeader.vue';
-import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
+import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
+
 import { useDatabases, useTables, useColumns, useMetrics, useTemplates } from '@/composables/useMetadataQueries';
 import { useTenantStore } from '@/stores/tenant';
 import { previewMetadata } from '@/api/rag';

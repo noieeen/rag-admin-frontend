@@ -11,7 +11,7 @@
           <button
             class="rounded-md border border-border px-3 py-2 text-sm"
             @click="exportMetrics"
-            :disabled="query.data.value.length === 0"
+            :disabled="query.data.value?.length === 0"
           >
             Export JSON
           </button>
@@ -81,8 +81,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import Card from '@/components/ui/Card.vue';
-import CardContent from '@/components/ui/CardContent.vue';
+import {Card,CardContent} from '@/components/ui/card';
 import { useMetrics } from '@/composables/useMetadataQueries';
 import { deleteBusinessMetric } from '@/api/metadata';
 import type { BusinessMetricMetadata } from '@/types/metadata';

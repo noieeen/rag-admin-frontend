@@ -226,11 +226,8 @@
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { Bot, Sparkles, User, Wrench, Activity, FileCode, Info, AlertTriangle } from 'lucide-vue-next';
 
-import Card from '@/components/ui/Card.vue';
-import CardHeader from '@/components/ui/CardHeader.vue';
-import CardContent from '@/components/ui/CardContent.vue';
-import CardTitle from '@/components/ui/CardTitle.vue';
-import CardDescription from '@/components/ui/CardDescription.vue';
+import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
+
 import { useModels } from '@/composables/useAiControls';
 import { streamChat } from '@/api/ai';
 import { useTenantStore } from '@/stores/tenant';

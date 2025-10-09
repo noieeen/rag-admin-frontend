@@ -38,8 +38,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import Card from '@/components/ui/Card.vue';
-import CardContent from '@/components/ui/CardContent.vue';
+import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
+
 import { useRelationships } from '@/composables/useMetadataQueries';
 
 const query = useRelationships();

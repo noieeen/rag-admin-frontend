@@ -6,9 +6,24 @@
           <h1 class="text-2xl font-semibold">Columns</h1>
           <p class="text-sm text-muted-foreground">Track column-level semantics, sensitivity, and embedding coverage.</p>
         </div>
-        <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-          Add Column Metadata
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="exportColumns"
+            :disabled="query.data.value?.length === 0"
+          >
+            Export JSON
+          </button>
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="isImportOpen = true"
+          >
+            Import JSON
+          </button>
+          <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+            Add Column Metadata
+          </button>
+        </div>
       </div>
       <div class="flex flex-wrap gap-2 text-sm">
         <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72" placeholder="Search columns" v-model="search" />
@@ -59,6 +74,8 @@
         </tbody>
       </table>
     </div>
+
+    <ColumnImportDialog v-model:open="isImportOpen" @imported="onImported" />
   </section>
 </template>
 
@@ -66,11 +83,14 @@
 import { computed, ref } from 'vue';
 
 import { useColumns } from '@/composables/useMetadataQueries';
+import ColumnImportDialog from './dialogs/ColumnImportDialog.vue';
+import { downloadJson } from '@/utils/download';
 
 const query = useColumns();
 const search = ref('');
 const selectedSensitivity = ref('');
 const selectedLanguage = ref('');
+const isImportOpen = ref(false);
 
 const columns = computed(() => query.data.value ?? []);
 
@@ -94,4 +114,15 @@ const filteredColumns = computed(() => {
     return matchesSearch && matchesSensitivity && matchesLanguage;
   });
 });
+
+function exportColumns() {
+  if (!columns.value.length) return;
+  const filename = `columns-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  downloadJson(filename, columns.value);
+}
+
+async function onImported() {
+  isImportOpen.value = false;
+  await query.refetch();
+}
 </script>

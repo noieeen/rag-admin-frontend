@@ -6,9 +6,24 @@
           <h1 class="text-2xl font-semibold">Databases</h1>
           <p class="text-sm text-muted-foreground">Manage registered databases and their metadata.</p>
         </div>
-        <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90" @click="openCreate = true">
-          New Database
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="exportDatabases"
+            :disabled="query.data.value?.length === 0"
+          >
+            Export JSON
+          </button>
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="isImportOpen = true"
+          >
+            Import JSON
+          </button>
+          <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90" @click="openCreate = true">
+            New Database
+          </button>
+        </div>
       </div>
       <div class="flex flex-wrap gap-2 text-sm">
         <input
@@ -58,6 +73,7 @@
     </div>
 
     <CreateDatabaseDialog v-model:open="openCreate" />
+    <DatabaseImportDialog v-model:open="isImportOpen" @imported="onImported" />
   </section>
 </template>
 
@@ -67,10 +83,13 @@ import { computed, ref } from 'vue';
 import { useDatabases } from '@/composables/useMetadataQueries';
 import { formatIsoDate } from '@/utils/formatters';
 import CreateDatabaseDialog from '@/views/metadata/dialogs/CreateDatabaseDialog.vue';
+import DatabaseImportDialog from './dialogs/DatabaseImportDialog.vue';
+import { downloadJson } from '@/utils/download';
 
 const query = useDatabases();
 const search = ref('');
 const openCreate = ref(false);
+const isImportOpen = ref(false);
 
 const databases = computed(() => query.data.value ?? []);
 const filteredDatabases = computed(() => {
@@ -83,4 +102,15 @@ const filteredDatabases = computed(() => {
 });
 
 const formatDate = (value?: string) => (value ? formatIsoDate(value) : '—');
+
+function exportDatabases() {
+  if (!databases.value.length) return;
+  const filename = `databases-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  downloadJson(filename, databases.value);
+}
+
+async function onImported() {
+  isImportOpen.value = false;
+  await query.refetch();
+}
 </script>

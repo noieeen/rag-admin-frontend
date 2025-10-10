@@ -6,9 +6,24 @@
           <h1 class="text-2xl font-semibold">Tables</h1>
           <p class="text-sm text-muted-foreground">Document table level metadata, usage patterns, and relevant columns.</p>
         </div>
-        <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-          Register Table
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="exportTables"
+            :disabled="query.data.value?.length === 0"
+          >
+            Export JSON
+          </button>
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="isImportOpen = true"
+          >
+            Import JSON
+          </button>
+          <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+            Register Table
+          </button>
+        </div>
       </div>
       <div class="flex flex-wrap gap-2 text-sm">
         <input class="w-full rounded-md border border-border bg-background px-3 py-2 md:w-72" placeholder="Search tables" v-model="search" />
@@ -47,6 +62,7 @@
         </tbody>
       </table>
     </div>
+    <TableImportDialog v-model:open="isImportOpen" @imported="onImported" />
   </section>
 </template>
 
@@ -55,9 +71,12 @@ import { computed, ref } from 'vue';
 
 import { useTables } from '@/composables/useMetadataQueries';
 import { formatNumber } from '@/utils/formatters';
+import TableImportDialog from './dialogs/TableImportDialog.vue';
+import { downloadJson } from '@/utils/download';
 
 const query = useTables();
 const search = ref('');
+const isImportOpen = ref(false);
 const tables = computed(() => query.data.value ?? []);
 
 const filteredTables = computed(() => {
@@ -68,4 +87,15 @@ const filteredTables = computed(() => {
     return name.toLowerCase().includes(value);
   });
 });
+
+function exportTables() {
+  if (!tables.value.length) return;
+  const filename = `tables-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  downloadJson(filename, tables.value);
+}
+
+async function onImported() {
+  isImportOpen.value = false;
+  await query.refetch();
+}
 </script>

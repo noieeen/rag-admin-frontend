@@ -6,9 +6,24 @@
           <h1 class="text-2xl font-semibold">Relations</h1>
           <p class="text-sm text-muted-foreground">Visualize joins and dependencies between tables.</p>
         </div>
-        <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-          Add Relation
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="exportRelationships"
+            :disabled="query.data.value?.length === 0"
+          >
+            Export JSON
+          </button>
+          <button
+            class="rounded-md border border-border px-3 py-2 text-sm"
+            @click="isImportOpen = true"
+          >
+            Import JSON
+          </button>
+          <button class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+            Add Relation
+          </button>
+        </div>
       </div>
     </header>
 
@@ -32,16 +47,28 @@
         </ul>
       </CardContent>
     </Card>
+
+    <RelationshipImportDialog v-model:open="isImportOpen" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import {Card, CardHeader, CardContent, CardTitle, CardDescription} from '@/components/ui/card';
 
 import { useRelationships } from '@/composables/useMetadataQueries';
+import RelationshipImportDialog from './dialogs/RelationshipImportDialog.vue';
+import { downloadJson } from '@/utils/download';
 
 const query = useRelationships();
 const relationships = computed(() => query.data.value ?? []);
+
+const isImportOpen = ref(false);
+
+function exportRelationships() {
+  if (!relationships.value.length) return;
+  const filename = `relationships-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  downloadJson(filename, relationships.value);
+}
 </script>

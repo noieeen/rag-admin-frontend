@@ -124,6 +124,19 @@ export async function createSynonymMapping(payload: SynonymMappingRequest) {
   });
 }
 
+export async function updateSynonymMapping(id: string, payload: SynonymMappingRequest) {
+  return apiFetch<SynonymMapping>(`/metadata/synonym-mappings/${id}`, {
+    method: 'PUT',
+    body: payload
+  });
+}
+
+export async function deleteSynonymMapping(id: string) {
+  return apiFetch<{ success: boolean }>(`/metadata/synonym-mappings/${id}`, {
+    method: 'DELETE'
+  });
+}
+
 export async function getOverviewSummary() {
   return apiFetch<{
     databases: number;

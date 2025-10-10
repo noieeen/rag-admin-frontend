@@ -13,6 +13,7 @@
           <div class="flex items-center justify-between text-sm">
             <p v-if="error" class="text-destructive">{{ error }}</p>
             <div class="flex items-center gap-2">
+              <button class="rounded-md border border-border px-3 py-1.5" @click="loadSample">Load Sample</button>
               <button class="rounded-md border border-border px-3 py-1.5" @click="clear">Clear</button>
               <button class="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90" @click="parseJson">Parse JSON</button>
             </div>
@@ -123,6 +124,23 @@ async function runImport() {
   isImporting.value = false;
   emit('imported');
 }
+
+function loadSample() {
+  raw.value = sampleJson.trim();
+  parseJson();
+}
+
+const sampleJson = `[
+  {
+    "database_id": "demo-db",
+    "type": "database",
+    "database_name": "demo",
+    "display_name": { "en": "Demo Database", "th": "ฐานข้อมูลเดโม" },
+    "description": { "en": "Sample database for import", "th": "ตัวอย่างสำหรับการนำเข้า" },
+    "dialect": "PostgreSQL",
+    "tags": { "en": ["demo", "sample"] }
+  }
+]`;
 </script>
 
 

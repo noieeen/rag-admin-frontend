@@ -15,6 +15,7 @@
           <div class="flex items-center justify-between text-sm">
             <p v-if="error" class="text-destructive">{{ error }}</p>
             <div class="flex items-center gap-2">
+              <button class="rounded-md border border-border px-3 py-1.5" @click="loadSample">Load Sample</button>
               <button class="rounded-md border border-border px-3 py-1.5" @click="clear">Clear</button>
               <button class="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90" @click="parseJson">Parse JSON</button>
             </div>
@@ -107,6 +108,21 @@ function removeAll() {
 }
 
 const importSummary = computed(() => drafts.length ? `${drafts.length} relationships ready (import disabled).` : 'No relationships parsed.');
+
+function loadSample() {
+  raw.value = sampleJson.trim();
+  parseJson();
+}
+
+const sampleJson = `[
+  {
+    "relationship_id": "demo-rel",
+    "type": "foreign_key",
+    "from_table_id": "orders",
+    "to_table_id": "customers",
+    "join_type": "inner"
+  }
+]`;
 </script>
 
 

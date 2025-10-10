@@ -13,6 +13,7 @@
           <div class="flex items-center justify-between text-sm">
             <p v-if="error" class="text-destructive">{{ error }}</p>
             <div class="flex items-center gap-2">
+              <button class="rounded-md border border-border px-3 py-1.5" @click="loadSample">Load Sample</button>
               <button class="rounded-md border border-border px-3 py-1.5" @click="clear">Clear</button>
               <button class="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90" @click="parseJson">Parse JSON</button>
             </div>
@@ -123,6 +124,25 @@ async function runImport() {
   isImporting.value = false;
   emit('imported');
 }
+
+function loadSample() {
+  raw.value = sampleJson.trim();
+  parseJson();
+}
+
+const sampleJson = `[
+  {
+    "table_id": "demo-table",
+    "type": "table",
+    "database_id": "demo-db",
+    "schema": "public",
+    "table_name": "orders",
+    "display_name": { "en": "Orders", "th": "คำสั่งซื้อ" },
+    "description": { "en": "Sample orders table", "th": "ตารางคำสั่งซื้อตัวอย่าง" },
+    "row_estimate": 1000,
+    "sensitivity": "internal"
+  }
+]`;
 </script>
 
 

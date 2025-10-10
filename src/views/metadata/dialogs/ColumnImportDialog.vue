@@ -40,8 +40,35 @@
                     <button class="rounded-md border border-border px-2 py-1 text-xs" @click="removeDraft(draft.internalId)">Remove</button>
                   </div>
                 </div>
-                <div v-if="expanded.has(draft.internalId)" class="rounded-md border border-border p-3 text-xs">
-                  <pre class="whitespace-pre-wrap">{{ JSON.stringify(draft.record, null, 2) }}</pre>
+                <div v-if="expanded.has(draft.internalId)" class="grid gap-3 rounded-md border border-border p-3 text-xs">
+                  <label class="flex flex-col gap-1">
+                    <span class="font-medium">Column Name</span>
+                    <input v-model="draft.record.column_name" class="rounded-md border border-border px-2 py-1.5" />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="font-medium">Display Name (EN)</span>
+                    <input v-model="draft.record.display_name.en" class="rounded-md border border-border px-2 py-1.5" />
+                  </label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Data Type</span>
+                      <input v-model="draft.record.data_type" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">Sensitivity</span>
+                      <input v-model="draft.record.sensitivity" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" v-model="draft.record.is_primary_key" />
+                      <span>Primary Key</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" v-model="draft.record.is_foreign_key" />
+                      <span>Foreign Key</span>
+                    </label>
+                  </div>
                 </div>
               </li>
             </ul>

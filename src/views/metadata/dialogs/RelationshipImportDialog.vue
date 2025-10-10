@@ -42,8 +42,25 @@
                     <button class="rounded-md border border-border px-2 py-1 text-xs" @click="removeDraft(draft.internalId)">Remove</button>
                   </div>
                 </div>
-                <div v-if="expanded.has(draft.internalId)" class="rounded-md border border-border p-3 text-xs">
-                  <pre class="whitespace-pre-wrap">{{ JSON.stringify(draft.record, null, 2) }}</pre>
+                <div v-if="expanded.has(draft.internalId)" class="grid gap-3 rounded-md border border-border p-3 text-xs">
+                  <label class="flex flex-col gap-1">
+                    <span class="font-medium">Type</span>
+                    <input v-model="draft.record.type" class="rounded-md border border-border px-2 py-1.5" />
+                  </label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">From Table</span>
+                      <input v-model="draft.record.from_table_id" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                      <span class="font-medium">To Table</span>
+                      <input v-model="draft.record.to_table_id" class="rounded-md border border-border px-2 py-1.5" />
+                    </label>
+                  </div>
+                  <label class="flex flex-col gap-1">
+                    <span class="font-medium">Join Type</span>
+                    <input v-model="draft.record.join_type" class="rounded-md border border-border px-2 py-1.5" />
+                  </label>
                 </div>
               </li>
             </ul>

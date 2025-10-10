@@ -48,6 +48,9 @@
 
       <main ref="chatScrollRef" class="flex-1 overflow-y-scroll px-6 py-8">
         <TransitionGroup name="chat-fade" tag="div" class="flex flex-col gap-6">
+          <div>
+            <EChart :option="chartOption"/>
+          </div>
           <div v-for="message in messages" :key="message.id" class="flex flex-col gap-2">
           <div
             :class="[
@@ -208,6 +211,8 @@ import {InputGroup, InputGroupText, InputGroupAddon, InputGroupButton, InputGrou
 import {Separator} from '@/components/ui/separator'
 import {DropdownMenu ,DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
 
+import EChart from '@/components/EChart.vue'
+
 interface ToolRun {
   id: string;
   name: string;
@@ -258,6 +263,45 @@ const tenantStore = useTenantStore();
 const modelsQuery = useModels();
 const models = computed(() => modelsQuery.data.value ?? []);
 const selectedModel = ref<string>();
+
+
+const chartOption= {
+    title: {
+        text: 'Traffic Sources',
+        left: 'center',
+    },
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)',
+    },
+    legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: ['Direct', 'Email', 'Ad Networks', 'Video Ads', 'Search Engines'],
+    },
+    series: [
+        {
+            name: 'Traffic Sources',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: [
+                { value: 335, name: 'Direct' },
+                { value: 310, name: 'Email' },
+                { value: 234, name: 'Ad Networks' },
+                { value: 135, name: 'Video Ads' },
+                { value: 1548, name: 'Search Engines' },
+            ],
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)',
+                },
+            },
+        },
+    ],
+};
 
 watch(
   () => models.value,

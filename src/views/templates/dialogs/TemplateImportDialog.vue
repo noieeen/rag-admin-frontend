@@ -320,7 +320,7 @@ function buildPayload(draft: TemplateDraftModel) {
 const sampleJson = `[
   {
     "query_template_id": "sample-template-1",
-    "type": "query_template",
+    "type": "query-template",
     "database_id": "demo-database-id",
     "natural_language_question": {
       "en": "Show sample template",

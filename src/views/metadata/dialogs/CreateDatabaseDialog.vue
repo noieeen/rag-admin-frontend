@@ -2,9 +2,9 @@
   <Dialog :open="open" @update:open="emit('update:open', false)">
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle>Create Database Metadata</DialogTitle>
+        <DialogTitle>{{ isEdit ? 'Edit Database Metadata' : 'Create Database Metadata' }}</DialogTitle>
         <DialogDescription>
-          Provide the information required to register a new database.
+          {{ isEdit ? 'Update the information for this database.' : 'Provide the information required to register a new database.' }}
         </DialogDescription>
       </DialogHeader>
       <Form class="space-y-4" @submit.prevent="submit">
@@ -48,7 +48,7 @@
               class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
               :disabled="isSubmitting"
           >
-            {{ isSubmitting ? 'Creating…' : 'Create' }}
+            {{ isSubmitting ? (isEdit ? 'Saving…' : 'Creating…') : (isEdit ? 'Save' : 'Create') }}
           </button>
         </div>
       </Form>
@@ -91,6 +91,7 @@ import {Input} from "@/components/ui/input"
 
 interface Props {
   open: boolean;
+  database?: DatabaseMetadata | null;
 }
 
 const props = defineProps<Props>();
@@ -111,13 +112,19 @@ const emptyForm: DatabaseMetadata = {
 
 const form = reactive({...emptyForm});
 const isSubmitting = ref(false);
+const isEdit = ref(false);
 const errorMessage = ref('');
 
 watch(
     () => props.open,
     (open) => {
       if (open) {
-        Object.assign(form, {...emptyForm, database_id: crypto.randomUUID()});
+        isEdit.value = !!props.database;
+        if (props.database) {
+          Object.assign(form, JSON.parse(JSON.stringify(props.database)));
+        } else {
+          Object.assign(form, {...emptyForm, database_id: crypto.randomUUID()});
+        }
         errorMessage.value = '';
       }
     }

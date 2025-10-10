@@ -65,14 +65,14 @@
             <td class="px-4 py-3 text-muted-foreground">{{ database.tags?.en?.slice(0, 3).join(', ') ?? '—' }}</td>
             <td class="px-4 py-3 text-muted-foreground">{{ formatDate(database.updated_at) }}</td>
             <td class="px-4 py-3 text-right text-muted-foreground">
-              <button class="rounded-md border border-border px-2 py-1">Details</button>
+              <button class="rounded-md border border-border px-2 py-1" @click="openEdit(database)">Edit</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <CreateDatabaseDialog v-model:open="openCreate" />
+    <CreateDatabaseDialog v-model:open="openCreate" :database="activeDatabase" />
     <DatabaseImportDialog v-model:open="isImportOpen" @imported="onImported" />
   </section>
 </template>
@@ -85,11 +85,13 @@ import { formatIsoDate } from '@/utils/formatters';
 import CreateDatabaseDialog from '@/views/metadata/dialogs/CreateDatabaseDialog.vue';
 import DatabaseImportDialog from './dialogs/DatabaseImportDialog.vue';
 import { downloadJson } from '@/utils/download';
+import type { DatabaseMetadata } from '@/types/metadata';
 
 const query = useDatabases();
 const search = ref('');
 const openCreate = ref(false);
 const isImportOpen = ref(false);
+const activeDatabase = ref<DatabaseMetadata | null>(null);
 
 const databases = computed(() => query.data.value ?? []);
 const filteredDatabases = computed(() => {
@@ -112,5 +114,10 @@ function exportDatabases() {
 async function onImported() {
   isImportOpen.value = false;
   await query.refetch();
+}
+
+function openEdit(database: DatabaseMetadata) {
+  activeDatabase.value = database;
+  openCreate.value = true;
 }
 </script>

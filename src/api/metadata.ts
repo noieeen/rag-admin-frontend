@@ -99,6 +99,19 @@ export async function createQueryTemplate(payload: CreateTemplateRequest) {
   });
 }
 
+export async function updateQueryTemplate(templateId: string, payload: CreateTemplateRequest) {
+  return apiFetch<QueryTemplateMetadata>(`/metadata/query-templates/${templateId}`, {
+    method: 'PUT',
+    body: payload
+  });
+}
+
+export async function deleteQueryTemplate(templateId: string) {
+  return apiFetch<{ success: boolean }>(`/metadata/query-templates/${templateId}`, {
+    method: 'DELETE'
+  });
+}
+
 export async function listSynonyms(withVector = false) {
   const searchParams = new URLSearchParams({ withVector: String(withVector) });
   return apiFetch<SynonymMapping[]>(`/metadata/synonym-mappings?${searchParams.toString()}`);

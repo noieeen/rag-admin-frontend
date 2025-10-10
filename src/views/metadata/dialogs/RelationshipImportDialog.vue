@@ -29,12 +29,22 @@
           </div>
           <div class="flex-1 overflow-y-auto rounded-lg border border-border">
             <ul v-if="drafts.length" class="divide-y divide-border text-sm">
-              <li v-for="draft in drafts" :key="draft.internalId" class="flex items-center justify-between gap-3 p-3">
-                <div>
-                  <p class="font-medium">{{ draft.record.from_table_id }} → {{ draft.record.to_table_id }}</p>
-                  <p class="text-xs text-muted-foreground">{{ draft.record.join_type || 'join' }} · {{ draft.record.type }}</p>
+              <li v-for="draft in drafts" :key="draft.internalId" class="space-y-2 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="font-medium">{{ draft.record.from_table_id }} → {{ draft.record.to_table_id }}</p>
+                    <p class="text-xs text-muted-foreground">{{ draft.record.join_type || 'join' }} · {{ draft.record.type }}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="rounded-md border border-border px-2 py-1 text-xs" @click="toggleExpand(draft.internalId)">
+                      {{ expanded.has(draft.internalId) ? 'Collapse' : 'Inspect' }}
+                    </button>
+                    <button class="rounded-md border border-border px-2 py-1 text-xs" @click="removeDraft(draft.internalId)">Remove</button>
+                  </div>
                 </div>
-                <button class="rounded-md border border-border px-2 py-1 text-xs" @click="removeDraft(draft.internalId)">Remove</button>
+                <div v-if="expanded.has(draft.internalId)" class="rounded-md border border-border p-3 text-xs">
+                  <pre class="whitespace-pre-wrap">{{ JSON.stringify(draft.record, null, 2) }}</pre>
+                </div>
               </li>
             </ul>
             <div v-else class="flex h-40 items-center justify-center text-sm text-muted-foreground">Parsed relationships will appear here.</div>
@@ -74,6 +84,7 @@ const emit = defineEmits<{ 'update:open': [value: boolean] }>();
 const raw = ref('');
 const error = ref('');
 const drafts = reactive<{ internalId: string; record: RelationshipRecord }[]>([]);
+const expanded = reactive(new Set<string>());
 
 function clear() {
   raw.value = '';
@@ -105,6 +116,7 @@ function removeDraft(id: string) {
 
 function removeAll() {
   drafts.splice(0);
+  expanded.clear();
 }
 
 const importSummary = computed(() => drafts.length ? `${drafts.length} relationships ready (import disabled).` : 'No relationships parsed.');
@@ -123,6 +135,10 @@ const sampleJson = `[
     "join_type": "inner"
   }
 ]`;
+
+function toggleExpand(id: string) {
+  if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+}
 </script>
 
 

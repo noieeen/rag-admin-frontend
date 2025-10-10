@@ -27,12 +27,22 @@
           </div>
           <div class="flex-1 overflow-y-auto rounded-lg border border-border">
             <ul v-if="drafts.length" class="divide-y divide-border text-sm">
-              <li v-for="draft in drafts" :key="draft.internalId" class="flex items-center justify-between gap-3 p-3">
-                <div>
-                  <p class="font-medium">{{ draft.record.display_name?.en || draft.record.table_name || 'Untitled Table' }}</p>
-                  <p class="text-xs text-muted-foreground">{{ draft.record.schema || '—' }}</p>
+              <li v-for="draft in drafts" :key="draft.internalId" class="space-y-2 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="font-medium">{{ draft.record.display_name?.en || draft.record.table_name || 'Untitled Table' }}</p>
+                    <p class="text-xs text-muted-foreground">{{ draft.record.schema || '—' }}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="rounded-md border border-border px-2 py-1 text-xs" @click="toggleExpand(draft.internalId)">
+                      {{ expanded.has(draft.internalId) ? 'Collapse' : 'Inspect' }}
+                    </button>
+                    <button class="rounded-md border border-border px-2 py-1 text-xs" @click="removeDraft(draft.internalId)">Remove</button>
+                  </div>
                 </div>
-                <button class="rounded-md border border-border px-2 py-1 text-xs" @click="removeDraft(draft.internalId)">Remove</button>
+                <div v-if="expanded.has(draft.internalId)" class="rounded-md border border-border p-3 text-xs">
+                  <pre class="whitespace-pre-wrap">{{ JSON.stringify(draft.record, null, 2) }}</pre>
+                </div>
               </li>
             </ul>
             <div v-else class="flex h-40 items-center justify-center text-sm text-muted-foreground">Parsed tables will appear here.</div>
@@ -71,6 +81,7 @@ const { activeTenant } = storeToRefs(tenantStore);
 const raw = ref('');
 const error = ref('');
 const drafts = reactive<{ internalId: string; record: TableMetadata }[]>([]);
+const expanded = reactive(new Set<string>());
 const isImporting = ref(false);
 const progress = ref(0);
 
@@ -104,6 +115,7 @@ function removeDraft(id: string) {
 
 function removeAll() {
   drafts.splice(0);
+  expanded.clear();
 }
 
 const importSummary = computed(() => drafts.length ? `${drafts.length} tables ready to import.` : 'No tables parsed.');
@@ -143,6 +155,10 @@ const sampleJson = `[
     "sensitivity": "internal"
   }
 ]`;
+
+function toggleExpand(id: string) {
+  if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+}
 </script>
 
 
